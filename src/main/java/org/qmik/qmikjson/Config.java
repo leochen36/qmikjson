@@ -22,5 +22,8 @@ public class Config {
 	 * 默认的时间解析格式
 	 */
 	public static SimpleDateFormat	DEFAULT_DATE_FORMATE	= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-	
+	/**
+	 * 启用json字符串解析<b style="color:red;">纠错模式</b>
+	 */
+	public static boolean				CORRECTION_MODE		= true;
 }

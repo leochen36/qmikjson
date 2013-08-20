@@ -71,6 +71,9 @@ public abstract class Token {
 			for (int index = 0; index < jsonLength; index++) {
 				switch (cs[index]) {
 				case ':':
+					if (Config.CORRECTION_MODE) {
+						continue;
+					}
 					if (flag == Select.valueEnd) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
@@ -80,6 +83,9 @@ public abstract class Token {
 					colonNum++;
 					break;
 				case ',':
+					if (Config.CORRECTION_MODE) {
+						continue;
+					}
 					if (flag == Select.keyEnd) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
