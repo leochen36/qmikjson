@@ -1,9 +1,11 @@
-package org.qmik.qmikjson;
+package org.qmik.qmikjson.token;
 
 import java.util.List;
 import java.util.Map;
 import org.qmik.datamap.Array;
 import org.qmik.datamap.Data;
+import org.qmik.qmikjson.Config;
+import org.qmik.qmikjson.JSONException;
 
 /**
  * json解析,把json字符串解析成map或list对象<br/>
@@ -218,7 +220,7 @@ public abstract class Token {
 	
 	/** 先进后出队列 */
 	private static class LIFO<E> {
-		private Object[]	list	= new Object[128];
+		private Object[]	list	= new Object[Config.MAX_LEVEL];
 		private int			posi	= -1;
 		
 		@SuppressWarnings("unchecked")

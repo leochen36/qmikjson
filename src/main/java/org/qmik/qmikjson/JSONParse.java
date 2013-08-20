@@ -5,9 +5,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import org.qmik.qmikjson.token.DataToken;
+import org.qmik.qmikjson.token.Token;
 import org.qmik.qmikjson.util.MixUtil;
 
 public class JSONParse {
+	private Token	tokenData	= new DataToken();
 	
 	public JSONParse() {
 	}
@@ -78,11 +81,8 @@ public class JSONParse {
 		return null;
 	}
 	
-	Token	token	= new DataToken();
-	
 	public Object parse(String json) {
-		//return (Object) JSONToken.token(json);
-		return (Object) token.token(json);
+		return (Object) tokenData.token(json);
 	}
 	
 }

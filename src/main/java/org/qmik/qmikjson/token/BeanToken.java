@@ -1,4 +1,4 @@
-package org.qmik.qmikjson;
+package org.qmik.qmikjson.token;
 
 import java.util.Map;
 import org.qmik.datamap.Data;
