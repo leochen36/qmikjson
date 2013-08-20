@@ -1,9 +1,7 @@
 package org.qmik.qmikjson.token;
 
 import java.util.List;
-import java.util.Map;
 import org.qmik.datamap.Array;
-import org.qmik.datamap.Data;
 import org.qmik.qmikjson.Config;
 import org.qmik.qmikjson.JSONException;
 
@@ -28,19 +26,13 @@ public abstract class Token {
 																								};
 																							};
 	
-	@SuppressWarnings("rawtypes")
-	protected Object createDataNode() {
-		return new Data();
-	}
+	protected abstract Object createDataNode();
+	
+	protected abstract void add(Object node, String key, Object value);
 	
 	@SuppressWarnings("rawtypes")
 	private List createArrayNode() {
 		return new Array();
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void add(Object node, String key, Object value) {
-		((Map) node).put(key, value);
 	}
 	
 	private void add(List<Object> node, Object value) {
