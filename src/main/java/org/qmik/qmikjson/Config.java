@@ -1,0 +1,26 @@
+package org.qmik.qmikjson;
+
+import java.text.SimpleDateFormat;
+
+/**
+ * qmiksjon配置类
+ * 
+ * @author leo
+ * 
+ */
+public class Config {
+	/**
+	 * qmikjson最深可解析json字符串的层级<br/>
+	 * {					//1层<br/>
+	 * 	{				//2层<br/>
+	 * 		[]			//3层<br/>
+	 * 	}<br/>
+	 * }<br/>
+	 */
+	public static int						MAX_LEVEL				= 128;
+	/**
+	 * 默认的时间解析格式
+	 */
+	public static SimpleDateFormat	DEFAULT_DATE_FORMATE	= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	
+}
