@@ -87,4 +87,17 @@ public class MixUtil {
 			return _default;
 		}
 	}
+	
+	public static String indexLower(String s, int index) {
+		if (s == null)
+			return null;
+		if (index >= s.length())
+			return s;
+		return s.substring(0, index) + s.substring(index, index + 1).toLowerCase() + s.substring(index + 1);
+	}
+	
+	public static boolean isPrimitive(Class<?> type) {
+		return type == Integer.class || type == Boolean.class || type == Long.class || type == Double.class || type == Character.class || type == Byte.class
+				|| type == Float.class || type.isPrimitive();
+	}
 }
