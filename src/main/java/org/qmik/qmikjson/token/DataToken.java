@@ -7,7 +7,7 @@ import org.qmik.datamap.Data;
 public class DataToken extends Token {
 	@Override
 	@SuppressWarnings("rawtypes")
-	protected Object createDataNode() {
+	protected Object createDataNode(Class<?> clazz) {
 		return new Data();
 	}
 	

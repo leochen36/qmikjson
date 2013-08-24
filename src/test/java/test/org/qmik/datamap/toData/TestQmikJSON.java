@@ -1,6 +1,6 @@
 package test.org.qmik.datamap.toData;
 
-public class TestQJSON {
+public class TestQmikJSON {
 	
 	public static void main(String[] args) throws Exception {
 		String[] jsons = JSONTestUnit.createJSONS();

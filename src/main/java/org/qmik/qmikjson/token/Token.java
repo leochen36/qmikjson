@@ -1,6 +1,8 @@
 package org.qmik.qmikjson.token;
 
 import java.util.List;
+import java.util.Map;
+
 import org.qmik.datamap.Array;
 import org.qmik.qmikjson.Config;
 import org.qmik.qmikjson.JSONException;
@@ -26,7 +28,7 @@ public abstract class Token {
 																								};
 																							};
 	
-	protected abstract Object createDataNode();
+	protected abstract Object createDataNode(Class<?> clazz);
 	
 	protected abstract void add(Object node, String key, Object value);
 	
@@ -40,7 +42,7 @@ public abstract class Token {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Object token(String json) {
+	public Object token(String json, Class<?> clazz) {
 		LIFO<String> queueKeys = sg_bufLocalKeys.get();//key冒泡
 		LIFO<Object> queueParents = sg_bufLocalNodes.get();//父节点key冒泡
 		queueKeys.clear();
@@ -130,14 +132,14 @@ public abstract class Token {
 				case '{':
 					parentNode = queueParents.peek();
 					if (parentNode == null) {
-						root = createDataNode();
+						root = createDataNode(clazz);
 						queueParents.add(root);
 						continue;
 					}
 					if (flag == Select.key || flag == Select.value) {
 						continue;
 					}
-					nNode = createDataNode();
+					nNode = createDataNode(clazz);
 					if (parentNode instanceof List) {
 						add((List) parentNode, nNode);
 					} else {
@@ -214,6 +216,10 @@ public abstract class Token {
 			throw new JSONException("json: " + json + " is Illegal format");
 		}
 		return root;
+	}
+	
+	public Object token(String json) {
+		return token(json, Map.class);
 	}
 	
 	/** 先进后出队列 */
