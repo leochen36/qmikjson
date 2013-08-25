@@ -6,6 +6,11 @@ import org.qmik.qmikjson.token.BeanToken;
 import org.qmik.qmikjson.token.DataToken;
 import org.qmik.qmikjson.token.Token;
 
+/**
+ * 转换
+ * @author leo
+ *
+ */
 public class JSONParse {
 	private Token		tokenData	= new DataToken();
 	private BeanToken	tokenBean	= new BeanToken();

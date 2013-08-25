@@ -8,10 +8,17 @@ import java.util.Map;
 
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.Data2Text;
+import org.qmik.qmikjson.token.IBean;
+import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 
 public class JSON {
 	private static Map<String, DateFormat>	dfs	= new HashMap<String, DateFormat>();
 	private final static JSONParse			parse	= new JSONParse();
+	
+	/** 创建增加对象 */
+	public static <T> T makeStrong(Class<T> clazz) {
+		return StrongBeanFactory.get(clazz, IBean.class);
+	}
 	
 	public static Object parse(String json) {
 		return parse.parse(json);
@@ -35,12 +42,8 @@ public class JSON {
 		if (formate != null) {
 			df = dfs.get(formate);
 			if (df == null) {
-				synchronized (dfs) {
-					if (df == null) {
-						df = new SimpleDateFormat(formate);
-						dfs.put(formate, df);
-					}
-				}
+				df = new SimpleDateFormat(formate);
+				dfs.put(formate, df);
 			}
 		}
 		if (obj instanceof Map) {

@@ -1,8 +1,6 @@
-package test.org.qmik.datamap.creataStrongClass;
+package test.org.qmik.datamap;
 
 import java.util.Date;
-
-import org.qmik.qmikjson.out.Bean2Text;
 
 public class User {
 	
@@ -15,45 +13,32 @@ public class User {
 	public int getId() {
 		return id;
 	}
-	
 	public void setId(int id) {
 		this.id = id;
 	}
-	
 	public long getUid() {
 		return uid;
 	}
-	
 	public void setUid(long uid) {
 		this.uid = uid;
 	}
-	
 	public String getName() {
 		return name;
 	}
-	
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 	public Date getCreateDate() {
 		return createDate;
 	}
-	
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
-	
 	public String getNick() {
 		return nick;
 	}
-	
 	public void setNick(String nick) {
 		this.nick = nick;
-	}
-	
-	public String toString() {
-		return Bean2Text.toJSONString(this);
 	}
 	
 }

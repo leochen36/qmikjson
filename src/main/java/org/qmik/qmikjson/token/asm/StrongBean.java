@@ -7,6 +7,7 @@ import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Opcodes;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
+import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.util.MixUtil;
 
@@ -69,8 +70,10 @@ public class StrongBean extends ClassLoader implements Opcodes {
 					}
 				}
 			}
+			makeToStringMethod(cw);
 			cw.visitEnd();
 			byte[] code = cw.toByteArray();
+			
 			return this.defineClass(subInternalName.replace("/", "."), code, 0, code.length);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -188,7 +191,6 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			label = new Label();
 			name = field.getName();
 			desc = JavaType.getDesc(field.getType());
-			//type = Type.getInternalName(field.getType());
 			//equals
 			mv.visitLdcInsn(name);
 			mv.visitVarInsn(ALOAD, 1);
@@ -318,6 +320,23 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, internalName, fieldName, desc);
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
+		mv.visitEnd();
+	}
+	
+	private static String	beanToInternalName	= getInternalName(Bean2Text.class);
+	
+	/**
+	 * 创建 toString方法
+	 * @param cw
+	 * @throws Exception
+	 */
+	private static void makeToStringMethod(ClassWriter cw) throws Exception {
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
+		mv.visitCode();
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKESTATIC, beanToInternalName, "toJSONString", "(Ljava/lang/Object;)Ljava/lang/String;");
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(2, 1);
 		mv.visitEnd();
 	}
 }

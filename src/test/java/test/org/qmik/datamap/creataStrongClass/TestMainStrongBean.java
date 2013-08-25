@@ -1,30 +1,21 @@
 package test.org.qmik.datamap.creataStrongClass;
 
 import java.util.Date;
-import java.util.Map;
 
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
-import test.org.qmik.datamap.UseCase;
 
-public class MainBean {
+public class TestMainStrongBean {
 	
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
-	public static void main(String[] args) throws Exception {
-		//Thread.currentThread().setContextClassLoader(User.class.getClassLoader());
-		//test();
-		
+	public static void main(String[] args) {
 		System.out.println(User.class.getClassLoader());
 		
-		IBean userBean = StrongBeanFactory.get(User.class, IBean.class);
+		/*	IBean userBean = StrongBeanFactory.get(User.class, IBean.class);
+			User user = (User) userBean;*/
 		
-		User user = (User) userBean;
-		System.out.println(user.getClass().getInterfaces()[0]);
+		User user = new User();
 		user.setId(111);
 		user.setCreateDate(new Date());
 		user.setName("leo");
@@ -43,14 +34,6 @@ public class MainBean {
 		
 		String ms = "{\"id\":111,\"name\":\"leo\",\"nick\":\"mpp\",\"uid\":3434304340}";
 		JSON.parse(ms);
-		//System.out.println(JSON.parse(ms));
 	}
 	
-	static void test() {
-		IBean bean = StrongBeanFactory.get(UseCase.class, IBean.class);
-		bean.$$$___setValue("id", 3);
-		//System.out.println(bean.$__getValue("id"));
-		UseCase user = (UseCase) bean;
-		System.out.println(user.getId());
-	}
 }

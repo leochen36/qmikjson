@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.Date;
 import org.qmik.qmikjson.token.IBean;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+import org.qmik.qmikjson.util.BeanUtil;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -31,7 +31,7 @@ public class Bean2Text {
 		if (bean instanceof IBean) {
 			ib = (IBean) bean;
 		} else {
-			ib = StrongBeanFactory.get(bean.getClass(), IBean.class);
+			ib = (IBean) BeanUtil.toIBean(bean);
 		}
 		sb.append("{");
 		Field[] fields = bean.getClass().getDeclaredFields();
