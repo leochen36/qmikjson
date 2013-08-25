@@ -6,8 +6,8 @@ import org.qmik.qmikjson.JSON;
 
 public class JSONTestUnit {
 	
-	private static int	maxJson	= 10;
-	private static int	dealSum	= 10000;
+	private static int	maxJson	= 50000;
+	private static int	dealSum	= 1;
 	private static int	arrays	= 10;
 	
 	public static void testJSON2Map() {
@@ -15,8 +15,9 @@ public class JSONTestUnit {
 		//String json = "\"T\":{\"C\":\"2\",\"E\":\"x\", \"L\":[\"1\", \"2\",{\"P\":\"p\",\"L1\":[\"1\",{\"O\":\"o\"}]},\"3\"],\"H\":{\"A\":\"3\",\"N\":\"n\",\"W\":{\"X\":\"x\",\"G\":\"g\",\"Q\":{}}},\"B\":{\"H\":\"9\"}}";
 		String json = "{\"1A\":\"V1中文}A\",\"1U\":\"12\",\"\":[] ,\"1B\":\"V1}B\", \"1L\":[\"V2A\", \"V2}B\",{\"3A\":\"V3}A\",\"3B\":[\"V4A\",{\"5A\":\"V5A\"}]},{\"3M\":\"V3M\",\"3N\":\"V3N\"},\"V2C\"],\"1H\":{\"2X\":\"V2X\",\"2Y\":\"V2Y\",\"2Z\":{\"3X\":\"V3X\",\"3Y\":\"V3Y\",\"3Z\":{}}},\"1K\":{\"2K\":\"V2K\"}}";
 		//String json = "[{\"1A\":\"V1A\",\"1U\":\"12\",\"1M\":[] ,\"1B\":\"V1B\", \"1L\":[\"V2A\", \"V2}B\",{\"3A\":\"V3}A\",\"3B\":[\"V4A\",{\"5A\":\"V5A\"}]},{\"3M\":\"V3M\",\"3N\":\"V3N\"},\"V2C\"],\"1H\":{\"2X\":\"V2X\",\"2Y\":\"V2Y\",\"2Z\":{\"3X\":\"V3X\",\"3Y\":\"V3Y\",\"3Z\":{}}},\"1K\":{\"2K\":\"V2K\"}}]";
+		System.out.println(JSON.parse(json));
 		long s1=System.currentTimeMillis();
-		for(int i=0;i<10000;i++){
+		for(int i=0;i<1;i++){
 			JSON.parse(json);
 		}
 		System.out.println("+++++++++++TTL:"+(System.currentTimeMillis()-s1));

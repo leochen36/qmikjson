@@ -1,5 +1,9 @@
 package org.qmik.qmikjson.token.asm;
-
+/**
+ * java 字节码指令 对象类型描述
+ * @author leo
+ *
+ */
 public class JavaType {
 	public static String getMethodDesc(Class<?>[] paramType, Class<?> returnType) {
 		StringBuffer sb = new StringBuffer();

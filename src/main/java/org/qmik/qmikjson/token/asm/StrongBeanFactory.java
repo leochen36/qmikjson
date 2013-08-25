@@ -1,5 +1,9 @@
 package org.qmik.qmikjson.token.asm;
-
+/**
+ * 增强bean类
+ * @author leo
+ *
+ */
 public class StrongBeanFactory {
 	
 	private final static StrongBeanClump	clump	= new StrongBeanClump();
@@ -14,8 +18,12 @@ public class StrongBeanFactory {
 		if (clump.get(key) != null) {
 			strongClass = clump.get(key);
 		} else {
-			strongClass = bean.makeClass(superClazz, superInterfaces);
-			clump.add(key, strongClass);
+			synchronized (clump) {
+				if (clump.get(key) == null) {
+					strongClass = bean.makeClass(superClazz, superInterfaces);
+					clump.add(key, strongClass);
+				}
+			}
 		}
 		try {
 			value = (T) clump.get(key).newInstance();

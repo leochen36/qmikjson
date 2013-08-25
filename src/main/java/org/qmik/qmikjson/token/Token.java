@@ -1,8 +1,6 @@
 package org.qmik.qmikjson.token;
 
 import java.util.List;
-import java.util.Map;
-
 import org.qmik.datamap.Array;
 import org.qmik.qmikjson.Config;
 import org.qmik.qmikjson.JSONException;
@@ -219,7 +217,7 @@ public abstract class Token {
 	}
 	
 	public Object token(String json) {
-		return token(json, Map.class);
+		return token(json, null);
 	}
 	
 	/** 先进后出队列 */

@@ -5,6 +5,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.qmik.qmikjson.util.MixUtil;
+
+/**
+ * map 转换成 json string
+ * @author leo
+ *
+ */
 public class Data2Text {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -19,8 +26,10 @@ public class Data2Text {
 			if (value == null) {
 				continue;
 			}
-			if (value.getClass().isPrimitive() || value instanceof CharSequence) {
+			if (value instanceof CharSequence) {
 				sb.append("\"").append(value).append("\"");
+			} else if (MixUtil.isPrimitive(value.getClass())) {
+				sb.append(value);
 			} else if (value instanceof Map) {
 				sb.append(map2JSON((Map) value, df));
 			} else if (value instanceof Collection) {
@@ -56,8 +65,10 @@ public class Data2Text {
 				continue;
 			}
 			sb.append("\"").append(key).append("\":");
-			if (value.getClass().isPrimitive() || value instanceof CharSequence) {
+			if (value instanceof CharSequence) {
 				sb.append("\"").append(value).append("\"");
+			} else if (MixUtil.isPrimitive(value.getClass())) {
+				sb.append(value);
 			} else if (value instanceof Map) {
 				if (value == map) {
 					continue;

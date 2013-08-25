@@ -17,12 +17,14 @@ public class MainBean {
 		test();
 		
 		IBean userBean = StrongBeanFactory.get(User.class, IBean.class);
+		
 		User user = (User) userBean;
 		user.setId(111);
 		user.setCreateDate(new Date());
 		user.setName("leo");
 		user.setNick("mpp");
 		user.setUid(3434304340L);
+		
 		String json = Bean2Text.toJSONString(user);
 		System.out.println("qmikjson:" + json);
 		System.out.println("fastjson:" + JSON.toJSONString(user));
@@ -35,7 +37,7 @@ public class MainBean {
 		
 		String ms = "{\"id\":111,\"name\":\"leo\",\"nick\":\"mpp\",\"uid\":3434304340}";
 		JSON.parse(ms);
-		System.out.println(JSON.parse(ms));
+		//System.out.println(JSON.parse(ms));
 	}
 	
 	static void test() {

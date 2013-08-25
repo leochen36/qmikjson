@@ -7,6 +7,11 @@ import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.MixUtil;
 
+/**
+ * bean 转换成 json 字符串
+ * @author leo
+ *
+ */
 public class Bean2Text {
 	public static String toJSONString(Object bean) {
 		return toJSONString(bean, null);

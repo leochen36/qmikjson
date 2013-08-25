@@ -1,13 +1,17 @@
 package org.qmik.qmikjson.token;
 
-import org.qmik.datamap.Data;
+import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 
+/**
+ * Json String to Bean token 算法
+ * @author leo
+ *
+ */
 public class BeanToken extends Token {
 	
 	@Override
-	@SuppressWarnings("rawtypes")
 	protected Object createDataNode(Class<?> clazz) {
-		return new Data();
+		return StrongBeanFactory.get(clazz, IBean.class);
 	}
 	
 	@Override

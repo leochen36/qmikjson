@@ -32,7 +32,6 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			//
 			for (int i = 0; i < interfaces.length; i++) {
-				System.out.println(superInterfaces[i].getName().replace(".", "/"));
 				interfaces[i] = superInterfaces[i].getName().replace(".", "/");
 			}
 			//ClassReader cr = new ClassReader(superClazz.getName());
@@ -88,8 +87,15 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		}
 	}
 	
+	/**
+	 * 创建构造函数
+	 * @param cw
+	 * @param superClass
+	 */
 	private static void makeStruct(ClassWriter cw, Class<?> superClass) {
 		String superClassName = superClass.getName().replace(".", "/");
+		
+		//创建无参构造函数
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", "()V");
@@ -97,8 +103,8 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
 		
+		//创建带父类对象的构造函数
 		String pv = "(" + JavaType.getDesc(superClass) + ")V";
-		System.out.println(pv);
 		MethodVisitor mv1 = cw.visitMethod(ACC_PUBLIC, "<init>", pv, null, null);
 		mv1.visitVarInsn(ALOAD, 0);
 		mv1.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", "()V");
@@ -107,6 +113,14 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv1.visitEnd();
 	}
 	
+	/**
+	 * 创建 ibean接口的 set方法
+	 * @param method
+	 * @param cw
+	 * @param methodName
+	 * @param className
+	 * @param fields
+	 */
 	private static void makeIBeanSetMethod(Method method, ClassWriter cw, String methodName, String className, Field[] fields) {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
@@ -167,6 +181,14 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		
 	}
 	
+	/**
+	 * 创建ibean接口的get方法
+	 * @param method
+	 * @param cw
+	 * @param methodName
+	 * @param className
+	 * @param fields
+	 */
 	private static void makeIBeanGetMethod(Method method, ClassWriter cw, String methodName, String className, Field[] fields) {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
@@ -223,6 +245,15 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		
 	}
 	
+	/**
+	 * 创建实现父类的get方法
+	 * @param method
+	 * @param cw
+	 * @param methodName
+	 * @param className
+	 * @param owner
+	 * @throws Exception
+	 */
 	private static void makeGetMethod(Method method, ClassWriter cw, String methodName, String className, Class<?> owner) throws Exception {
 		String fieldName = MixUtil.indexLower(methodName.substring(3), 0);
 		Field field = owner.getDeclaredField(fieldName);
@@ -256,6 +287,15 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
+	/**
+	 * 创建实现父类的set方法
+	 * @param method
+	 * @param cw
+	 * @param methodName
+	 * @param className
+	 * @param owner
+	 * @throws Exception
+	 */
 	private static void makeSetMethod(Method method, ClassWriter cw, String methodName, String className, Class<?> owner) throws Exception {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
@@ -286,7 +326,6 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		}
 		
 		mv.visitFieldInsn(PUTFIELD, className, fieldName, desc);
-		
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
