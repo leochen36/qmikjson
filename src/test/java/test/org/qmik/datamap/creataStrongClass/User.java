@@ -21,7 +21,7 @@ public class User {
 	}
 	public void setUid(long uid) {
 		this.uid = uid;
-	}
+	}      
 	public String getName() {
 		return name;
 	}

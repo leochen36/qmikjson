@@ -1,6 +1,5 @@
 package org.qmik.qmikjson.token.asm;
 
-import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
@@ -19,27 +18,27 @@ import org.qmik.qmikjson.util.MixUtil;
 public class StrongBean extends ClassLoader implements Opcodes {
 	public final static String	suffix	= "$StrongBean";
 	
-	public static String getClassName(Class<?> clazz) {
-		return clazz.getSimpleName() + suffix;
-		//	return clazz.getName() + suffix;
+	public static String getInternalName(Class<?> clazz) {
+		//return clazz.getSimpleName() + suffix;
+		return Type.getInternalName(clazz);
 	}
 	
 	public Class<?> makeClass(Class<?> superClazz, Class<?>... superInterfaces) {
 		try {
-			
-			String className = getClassName(superClazz);
+			if (superClazz == IBean.class) {
+				return superClazz;
+			}
+			String superInternalName = getInternalName(superClazz);
+			String subInternalName = superInternalName + suffix;
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			String[] interfaces = new String[superInterfaces.length];
 			
 			//
 			for (int i = 0; i < interfaces.length; i++) {
-				interfaces[i] = superInterfaces[i].getName().replace(".", "/");
+				interfaces[i] = getInternalName(superInterfaces[i]);
 			}
-			//ClassReader cr = new ClassReader(superClazz.getName());
-			//
-			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			
-			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, className, null, superClazz.getName().replace(".", "/"), interfaces);
-			//cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, className, null, "java/lang/Object", interfaces);
+			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, subInternalName, null, superInternalName, interfaces);
 			
 			//创建字段
 			Field[] fields = superClazz.getDeclaredFields();
@@ -53,9 +52,9 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			Method[] methods = superClazz.getDeclaredMethods();
 			for (Method method : methods) {
 				if (method.getName().startsWith("set")) {
-					makeSetMethod(method, cw, method.getName(), className, superClazz);
+					makeSetMethod(method, cw, method.getName(), subInternalName, superClazz);
 				} else if (method.getName().startsWith("get")) {
-					makeGetMethod(method, cw, method.getName(), className, superClazz);
+					makeGetMethod(method, cw, method.getName(), subInternalName, superClazz);
 				}
 			}
 			for (Class<?> clazz : superInterfaces) {
@@ -63,25 +62,16 @@ public class StrongBean extends ClassLoader implements Opcodes {
 				if (clazz == IBean.class) {
 					for (Method method : methods) {
 						if (method.getName().equals("$$$___setValue")) {
-							makeIBeanSetMethod(method, cw, method.getName(), className, fields);
+							makeIBeanSetMethod(method, cw, method.getName(), subInternalName, fields);
 						} else if (method.getName().equals("$$$___getValue")) {
-							makeIBeanGetMethod(method, cw, method.getName(), className, fields);
+							makeIBeanGetMethod(method, cw, method.getName(), subInternalName, fields);
 						}
 					}
 				}
 			}
 			cw.visitEnd();
-			
 			byte[] code = cw.toByteArray();
-			FileOutputStream fos = new FileOutputStream(Thread.currentThread().getContextClassLoader().getResource("").getFile() + className.replace(".", "/")
-					+ ".class");
-			//FileOutputStream fos = new FileOutputStream("d:/"+ className.replace(".", "/")+".class");
-			fos.write(code);
-			fos.flush();
-			fos.close();
-			return this.defineClass(className, code, 0, code.length);
-			
-			//return this.loadClass(className);
+			return this.defineClass(subInternalName.replace("/", "."), code, 0, code.length);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -93,7 +83,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param superClass
 	 */
 	private static void makeStruct(ClassWriter cw, Class<?> superClass) {
-		String superClassName = superClass.getName().replace(".", "/");
+		String superClassName = getInternalName(superClass);
 		
 		//创建无参构造函数
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
@@ -121,7 +111,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param className
 	 * @param fields
 	 */
-	private static void makeIBeanSetMethod(Method method, ClassWriter cw, String methodName, String className, Field[] fields) {
+	public static void makeIBeanSetMethod(Method method, ClassWriter cw, String methodName, String internalName, Field[] fields) {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
 		String name, desc, type;
@@ -168,7 +158,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			} else {
 				mv.visitTypeInsn(CHECKCAST, type);
 			}
-			mv.visitFieldInsn(PUTFIELD, className, name, desc);
+			mv.visitFieldInsn(PUTFIELD, internalName, name, desc);
 			
 			mv.visitInsn(RETURN);
 			mv.visitLabel(label);
@@ -189,7 +179,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param className
 	 * @param fields
 	 */
-	private static void makeIBeanGetMethod(Method method, ClassWriter cw, String methodName, String className, Field[] fields) {
+	public static void makeIBeanGetMethod(Method method, ClassWriter cw, String methodName, String internalName, Field[] fields) {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
 		String name, desc;
@@ -208,31 +198,31 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			//get
 			mv.visitVarInsn(ALOAD, 0);
 			if ("I".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
 			} else if ("Z".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
 			} else if ("J".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
 			} else if ("D".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
 			} else if ("C".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
 			} else if ("S".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
 			} else if ("F".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
 			} else if ("B".equals(desc)) {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
 			} else {
-				mv.visitFieldInsn(GETFIELD, className, name, desc);
+				mv.visitFieldInsn(GETFIELD, internalName, name, desc);
 			}
 			mv.visitInsn(ARETURN);
 			mv.visitLabel(label);
@@ -254,7 +244,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param owner
 	 * @throws Exception
 	 */
-	private static void makeGetMethod(Method method, ClassWriter cw, String methodName, String className, Class<?> owner) throws Exception {
+	private static void makeGetMethod(Method method, ClassWriter cw, String methodName, String internalName, Class<?> owner) throws Exception {
 		String fieldName = MixUtil.indexLower(methodName.substring(3), 0);
 		Field field = owner.getDeclaredField(fieldName);
 		String desc = JavaType.getDesc(field.getType());
@@ -262,7 +252,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, className, fieldName, desc);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, desc);
 		if ("I".equals(desc)) {
 			mv.visitInsn(IRETURN);
 		} else if ("Z".equals(desc)) {
@@ -296,7 +286,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param owner
 	 * @throws Exception
 	 */
-	private static void makeSetMethod(Method method, ClassWriter cw, String methodName, String className, Class<?> owner) throws Exception {
+	private static void makeSetMethod(Method method, ClassWriter cw, String methodName, String internalName, Class<?> owner) throws Exception {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
@@ -325,7 +315,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			mv.visitVarInsn(ALOAD, 1);
 		}
 		
-		mv.visitFieldInsn(PUTFIELD, className, fieldName, desc);
+		mv.visitFieldInsn(PUTFIELD, internalName, fieldName, desc);
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();

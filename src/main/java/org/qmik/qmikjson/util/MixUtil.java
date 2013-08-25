@@ -100,4 +100,8 @@ public class MixUtil {
 		return type == Integer.class || type == Boolean.class || type == Long.class || type == Double.class || type == Character.class || type == Byte.class
 				|| type == Float.class || type.isPrimitive();
 	}
+	
+	public static String getRunPath() {
+		return Thread.currentThread().getContextClassLoader().getResource("").getFile();
+	}
 }
