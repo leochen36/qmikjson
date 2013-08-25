@@ -91,7 +91,6 @@ public class JSONToken {
 							if (parentNode instanceof List) {
 								((List) parentNode).add(value);
 							} else {
-								//System.out.println(queueKeys.peek()+"--"+parentNode);
 								((Map) parentNode).put(queueKeys.pop(), value);
 							}
 							flag = Select.valueEnd;
@@ -128,7 +127,7 @@ public class JSONToken {
 						((List) parentNode).add(nNode);
 					}
 					queueParents.add(nNode);
-					flag = Select.enterKey;
+					flag = Select.keyEnter;
 					break;
 				case '}':
 					parentNode = queueParents.peek();
@@ -152,7 +151,7 @@ public class JSONToken {
 					if (parentNode == null) {
 						root = new ArrayList();
 						queueParents.add(root);
-						flag = Select.enterValue;
+						flag = Select.valueEnter;
 						continue;
 					}
 					if (flag == Select.key || flag == Select.value) {
@@ -163,7 +162,7 @@ public class JSONToken {
 						((Map) parentNode).put(queueKeys.peek(), nNode);
 					}
 					queueParents.add(nNode);
-					flag = Select.enterValue;
+					flag = Select.valueEnter;
 					break;
 				case ']':
 					parentNode = queueParents.peek();
@@ -186,7 +185,6 @@ public class JSONToken {
 					flag = Select.valueEnd;
 					break;
 				}
-				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -228,12 +226,13 @@ public class JSONToken {
 	
 	/** 标记符 */
 	private static enum Select {
-		enterKey(1), //即将进入选key阶段
-		enterValue(2), //即将进入选value阶段
+		keyEnter(10), //即将进入选key阶段
 		key(11), //选key阶段
 		keyEnd(12), //选key阶段结束
+		valueEnter(20), //即将进入选value阶段
 		value(21), //选value阶段
-		valueEnd(22)//选value阶段结束
+		valueEnd(22), //选value阶段结束
+		unmarked(0)//标记
 		;
 		private int	status;
 		
