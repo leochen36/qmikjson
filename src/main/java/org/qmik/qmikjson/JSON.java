@@ -15,7 +15,7 @@ public class JSON {
 	private static Map<String, DateFormat>	dfs	= new HashMap<String, DateFormat>();
 	private final static JSONParse			parse	= new JSONParse();
 	
-	/** 创建增加对象 */
+	/** 创建增强对象 */
 	public static <T> T makeStrong(Class<T> clazz) {
 		return StrongBeanFactory.get(clazz, IBean.class);
 	}
@@ -54,5 +54,4 @@ public class JSON {
 		}
 		return Bean2Text.toJSONString(obj, df);
 	}
-	
 }

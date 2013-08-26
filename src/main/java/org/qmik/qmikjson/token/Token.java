@@ -2,8 +2,8 @@ package org.qmik.qmikjson.token;
 
 import java.util.List;
 import org.qmik.datamap.Array;
-import org.qmik.qmikjson.Config;
 import org.qmik.qmikjson.JSONException;
+import org.qmik.qmikjson.util.MixUtil;
 
 /**
  * json解析,把json字符串解析成map或list对象<br/>
@@ -71,28 +71,47 @@ public abstract class Token {
 			for (int index = 0; index < jsonLength; index++) {
 				switch (cs[index]) {
 				case ':':
-					if (Config.CORRECTION_MODE) {
-						continue;
-					}
+					//:之后不可能出现状态valueEnd
 					if (flag == Select.valueEnd) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
+					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
+					if (flag == Select.key || flag == Select.value) {
+						continue;
+					}
+					//连接出现多次:,格式非法
 					if (colonNum >= 1) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
+					flag = Select.unmarked;
+					posi = limit = index + 1;
 					colonNum++;
 					break;
 				case ',':
-					if (Config.CORRECTION_MODE) {
-						continue;
-					}
+					//,之后不可能出现状态keyEnd
 					if (flag == Select.keyEnd) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
+					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
+					if (flag == Select.key || flag == Select.value) {
+						continue;
+					}
+					//连接出现多次,,格式非法
 					if (commaNum >= 1) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
 					commaNum++;
+					parentNode = queueParents.peek();
+					//如果前面已标记取无引号起来的值,则下面进行聚会操作
+					if (flag == Select.unmarked) {
+						limit = index;
+						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+						colonNum = commaNum = 0;
+					}
+					if (parentNode instanceof List) {
+						flag = Select.unmarked;
+						posi = limit = index + 1;
+					}
 					break;
 				case '"':
 					parentNode = queueParents.peek();
@@ -121,6 +140,10 @@ public abstract class Token {
 							continue;
 						}
 						if (flag == Select.keyEnd) {
+							flag = Select.value;
+							continue;
+						}
+						if (flag == Select.unmarked) {
 							flag = Select.value;
 							continue;
 						}
@@ -158,6 +181,11 @@ public abstract class Token {
 						if (flag == Select.key || flag == Select.value) {
 							continue;
 						}
+						if (flag == Select.unmarked) {
+							limit = index;
+							flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+							colonNum = commaNum = 0;
+						}
 					}
 					captureKey = false;
 					queueParents.pop();
@@ -180,7 +208,8 @@ public abstract class Token {
 						add(parentNode, queueKeys.peek(), nNode);
 					}
 					queueParents.add(nNode);
-					flag = Select.enterValue;
+					flag = Select.unmarked;
+					limit = posi = index + 1;
 					break;
 				case ']':
 					parentNode = queueParents.peek();
@@ -188,12 +217,16 @@ public abstract class Token {
 					if (!(parentNode instanceof List)) {
 						continue;
 					}
-					//如果父节点是,map,并且有内容
-					if (((List) parentNode).size() > 0) {
-						//在选key或value
-						if (flag == Select.key || flag == Select.value) {
-							continue;
-						}
+					
+					//在选key或value
+					if (flag == Select.key || flag == Select.value) {
+						continue;
+					}
+					//如果前面已标记取无引号起来的值,则下面进行聚会操作
+					if (flag == Select.unmarked && posi < index) {
+						limit = index;
+						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+						colonNum = commaNum = 0;
 					}
 					queueParents.pop();
 					if (!(queueParents.peek() instanceof List)) {
@@ -207,8 +240,7 @@ public abstract class Token {
 				
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new JSONException("json: " + json + " is Illegal format");
+			throw new JSONException("json: " + json + " is Illegal format", e);
 		}
 		if (!queueKeys.isEmpty() || !queueParents.isEmpty()) {
 			throw new JSONException("json: " + json + " is Illegal format");
@@ -220,52 +252,13 @@ public abstract class Token {
 		return token(json, null);
 	}
 	
-	/** 先进后出队列 */
-	private static class LIFO<E> {
-		private Object[]	list	= new Object[Config.MAX_LEVEL];
-		private int			posi	= -1;
-		
-		@SuppressWarnings("unchecked")
-		public E pop() {
-			return posi < 0 ? null : (E) list[posi--];
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Select add4ByteValue(Object parentNode, LIFO<String> queueKeys, String value) {
+		if (parentNode instanceof List) {
+			add((List) parentNode, MixUtil.to4Byte(value));
+		} else {
+			add(parentNode, queueKeys.pop(), MixUtil.to4Byte(value));
 		}
-		
-		@SuppressWarnings("unchecked")
-		public E peek() {
-			return posi < 0 ? null : (E) list[posi];
-		}
-		
-		public void add(E value) {
-			list[++posi] = value;
-		}
-		
-		public boolean isEmpty() {
-			return posi < 0;
-		}
-		
-		public void clear() {
-			posi = -1;
-		}
-	}
-	
-	/** 标记符 */
-	private static enum Select {
-		enterKey(1), //即将进入选key阶段
-		enterValue(2), //即将进入选value阶段
-		key(11), //选key阶段
-		keyEnd(12), //选key阶段结束
-		value(21), //选value阶段
-		valueEnd(22)//选value阶段结束
-		;
-		private int	status;
-		
-		private Select(int status) {
-			this.status = status;
-		}
-		
-		@Override
-		public String toString() {
-			return status + "";
-		}
+		return Select.valueEnd;
 	}
 }

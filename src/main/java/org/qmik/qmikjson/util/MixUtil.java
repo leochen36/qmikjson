@@ -88,6 +88,20 @@ public class MixUtil {
 		}
 	}
 	
+	public static Object to4Byte(String value) {
+		value = value.trim();
+		if ("true".equals(value) || "false".equals(value)) {
+			return Boolean.valueOf(value);
+		}
+		if (value.indexOf(".") >= 0) {
+			return Double.valueOf(value);
+		}
+		if (value.length() > 9) {
+			return Long.valueOf(value);
+		}
+		return Integer.valueOf(value);
+	}
+	
 	public static String indexLower(String s, int index) {
 		if (s == null)
 			return null;
