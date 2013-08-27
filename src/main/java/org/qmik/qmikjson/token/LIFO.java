@@ -33,4 +33,16 @@ public class LIFO<E> {
 	public void clear() {
 		posi = -1;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i <= posi; i++) {
+			if(i>0){
+				sb.append(",");
+			}
+			sb.append(list[i]);
+		}
+		return sb.toString();
+	}
 }

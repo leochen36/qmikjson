@@ -76,7 +76,7 @@ public abstract class Token {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
 					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
-					if (flag == Select.key || flag == Select.value) {
+					if (isSelecting(flag)) {
 						continue;
 					}
 					//连接出现多次:,格式非法
@@ -93,14 +93,13 @@ public abstract class Token {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
 					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
-					if (flag == Select.key || flag == Select.value) {
+					if (isSelecting(flag)) {
 						continue;
 					}
 					//连接出现多次,,格式非法
 					if (commaNum >= 1) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
-					commaNum++;
 					parentNode = queueParents.peek();
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
 					if (flag == Select.valueUnmarked) {
@@ -111,6 +110,8 @@ public abstract class Token {
 					if (parentNode instanceof List) {
 						flag = Select.valueUnmarked;
 						posi = limit = index + 1;
+					} else {
+						commaNum++;
 					}
 					break;
 				case '"':
@@ -157,7 +158,7 @@ public abstract class Token {
 						queueParents.add(root);
 						continue;
 					}
-					if (flag == Select.key || flag == Select.value) {
+					if (isSelecting(flag)) {
 						continue;
 					}
 					nNode = createDataNode(clazz);
@@ -178,7 +179,7 @@ public abstract class Token {
 					//如果父节点是,map,并且有内容
 					if (captureKey) {
 						//在选key或value
-						if (flag == Select.key || flag == Select.value) {
+						if (isSelecting(flag)) {
 							continue;
 						}
 						if (flag == Select.valueUnmarked) {
@@ -200,12 +201,14 @@ public abstract class Token {
 						flag = Select.valueEnter;
 						continue;
 					}
-					if (flag == Select.key || flag == Select.value) {
+					if (isSelecting(flag)) {
 						continue;
 					}
 					nNode = createArrayNode();
 					if (!(parentNode instanceof List)) {
 						add(parentNode, queueKeys.peek(), nNode);
+					} else {
+						add((List) parentNode, nNode);
 					}
 					queueParents.add(nNode);
 					flag = Select.valueUnmarked;
@@ -213,21 +216,21 @@ public abstract class Token {
 					break;
 				case ']':
 					parentNode = queueParents.peek();
+					
 					//如果父节点不是map结构,直接返回
 					if (!(parentNode instanceof List)) {
 						continue;
 					}
-					
 					//在选key或value
-					if (flag == Select.key || flag == Select.value) {
+					if (isSelecting(flag)) {
 						continue;
 					}
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
-					if (flag == Select.valueUnmarked && posi < index) {
+					if (flag == Select.valueUnmarked && posi <= index && ((List) parentNode).size() > 0) {
 						limit = index;
 						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
-						colonNum = commaNum = 0;
 					}
+					colonNum = commaNum = 0;
 					queueParents.pop();
 					if (!(queueParents.peek() instanceof List)) {
 						queueKeys.pop();
@@ -250,6 +253,10 @@ public abstract class Token {
 	
 	public Object token(String json) {
 		return token(json, null);
+	}
+	
+	private boolean isSelecting(Select flag) {
+		return flag == Select.key || flag == Select.value;
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
