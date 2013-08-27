@@ -83,7 +83,7 @@ public abstract class Token {
 					if (colonNum >= 1) {
 						throw new JSONException("json: " + json + " is Illegal format");
 					}
-					flag = Select.unmarked;
+					flag = Select.valueUnmarked;
 					posi = limit = index + 1;
 					colonNum++;
 					break;
@@ -103,13 +103,13 @@ public abstract class Token {
 					commaNum++;
 					parentNode = queueParents.peek();
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
-					if (flag == Select.unmarked) {
+					if (flag == Select.valueUnmarked) {
 						limit = index;
 						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
 						colonNum = commaNum = 0;
 					}
 					if (parentNode instanceof List) {
-						flag = Select.unmarked;
+						flag = Select.valueUnmarked;
 						posi = limit = index + 1;
 					}
 					break;
@@ -143,7 +143,7 @@ public abstract class Token {
 							flag = Select.value;
 							continue;
 						}
-						if (flag == Select.unmarked) {
+						if (flag == Select.valueUnmarked) {
 							flag = Select.value;
 							continue;
 						}
@@ -167,7 +167,7 @@ public abstract class Token {
 						add(parentNode, queueKeys.pop(), nNode);
 					}
 					queueParents.add(nNode);
-					flag = Select.enterKey;
+					flag = Select.keyEnter;
 					break;
 				case '}':
 					parentNode = queueParents.peek();
@@ -181,7 +181,7 @@ public abstract class Token {
 						if (flag == Select.key || flag == Select.value) {
 							continue;
 						}
-						if (flag == Select.unmarked) {
+						if (flag == Select.valueUnmarked) {
 							limit = index;
 							flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
 							colonNum = commaNum = 0;
@@ -197,7 +197,7 @@ public abstract class Token {
 					if (parentNode == null) {
 						root = createArrayNode();
 						queueParents.add(root);
-						flag = Select.enterValue;
+						flag = Select.valueEnter;
 						continue;
 					}
 					if (flag == Select.key || flag == Select.value) {
@@ -208,7 +208,7 @@ public abstract class Token {
 						add(parentNode, queueKeys.peek(), nNode);
 					}
 					queueParents.add(nNode);
-					flag = Select.unmarked;
+					flag = Select.valueUnmarked;
 					limit = posi = index + 1;
 					break;
 				case ']':
@@ -223,7 +223,7 @@ public abstract class Token {
 						continue;
 					}
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
-					if (flag == Select.unmarked && posi < index) {
+					if (flag == Select.valueUnmarked && posi < index) {
 						limit = index;
 						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
 						colonNum = commaNum = 0;

@@ -1,13 +1,14 @@
 package org.qmik.qmikjson.token;
 
 public enum Select {
-	enterKey(1), //即将进入选key阶段
-	enterValue(2), //即将进入选value阶段
+	keyEnter(10), //即将进入选key阶段
 	key(11), //选key阶段
 	keyEnd(12), //选key阶段结束
+	keyUnmarked(13), //标记
+	valueEnter(20), //即将进入选value阶段
 	value(21), //选value阶段
 	valueEnd(22), //选value阶段结束
-	unmarked(0)//标记
+	valueUnmarked(23)//标记
 	;
 	private int	status;
 	
