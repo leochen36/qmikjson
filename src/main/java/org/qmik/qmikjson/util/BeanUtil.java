@@ -5,13 +5,31 @@ import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 
 public class BeanUtil {
-	private static Object[]	NULLS	= new Object[] {};
+	private static Object[]		NULLS			= new Object[] {};
+	private static Class<?>[]	NULLS_CLASS	= new Class[] {};
+	
+	public static Object invoke(Object target, Method mothod) {
+		try {
+			return mothod.invoke(target, NULLS);
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
+	public static Object invokeGet(Object target, String mothodName) {
+		try {
+			
+			return invoke(target, target.getClass().getDeclaredMethod(mothodName, NULLS_CLASS));
+		} catch (Exception e) {
+		}
+		return null;
+	}
 	
 	public static <T> T toIBean(T value) {
 		if (value instanceof IBean) {
 			return value;
 		}
-		T newValue = StrongBeanFactory.get(value.getClass(), IBean.class);
+		T newValue = StrongBeanFactory.get(value.getClass());
 		IBean nv = (IBean) newValue;
 		Method[] methods = value.getClass().getDeclaredMethods();
 		String name;

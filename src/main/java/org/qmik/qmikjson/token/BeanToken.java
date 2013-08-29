@@ -11,7 +11,7 @@ public class BeanToken extends Token {
 	
 	@Override
 	protected Object createDataNode(Class<?> clazz) {
-		return StrongBeanFactory.get(clazz, IBean.class);
+		return StrongBeanFactory.get(clazz);
 	}
 	
 	@Override

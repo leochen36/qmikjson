@@ -90,6 +90,9 @@ public class MixUtil {
 	
 	public static Object to4Byte(String value) {
 		value = value.trim();
+		if ("null".equals(value)) {
+			return null;
+		}
 		if ("true".equals(value) || "false".equals(value)) {
 			return Boolean.valueOf(value);
 		}
@@ -110,9 +113,17 @@ public class MixUtil {
 		return s.substring(0, index) + s.substring(index, index + 1).toLowerCase() + s.substring(index + 1);
 	}
 	
+	public static String indexUpper(String s, int index) {
+		if (s == null)
+			return null;
+		if (index >= s.length())
+			return s;
+		return s.substring(0, index) + s.substring(index, index + 1).toUpperCase() + s.substring(index + 1);
+	}
+	
 	public static boolean isPrimitive(Class<?> type) {
-		return type == Integer.class || type == Boolean.class || type == Long.class || type == Double.class || type == Character.class || type == Byte.class
-				|| type == Float.class || type.isPrimitive();
+		return type.isPrimitive() || type == Integer.class || type == Boolean.class || type == Long.class || type == Double.class || type == Character.class
+				|| type == Byte.class || type == Float.class;
 	}
 	
 	public static String getRunPath() {

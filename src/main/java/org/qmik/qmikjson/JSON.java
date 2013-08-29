@@ -17,7 +17,7 @@ public class JSON {
 	
 	/** 创建增强对象 */
 	public static <T> T makeStrong(Class<T> clazz) {
-		return StrongBeanFactory.get(clazz, IBean.class);
+		return StrongBeanFactory.get(clazz);
 	}
 	
 	public static Object parse(String json) {

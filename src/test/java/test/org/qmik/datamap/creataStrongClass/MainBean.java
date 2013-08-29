@@ -21,8 +21,9 @@ public class MainBean {
 		
 		System.out.println(User.class.getClassLoader());
 		
-		IBean userBean = StrongBeanFactory.get(User.class, IBean.class);
-		
+		IBean userBean = StrongBeanFactory.get(User.class);
+		if (true)
+			return;
 		User user = (User) userBean;
 		System.out.println(user.getClass().getInterfaces()[0]);
 		user.setId(111);
@@ -31,11 +32,30 @@ public class MainBean {
 		user.setNick("mpp");
 		user.setUid(3434304340L);
 		
+		user.setId1(111);
+		user.setCreateDate1(new Date());
+		user.setName1("leo");
+		user.setNick1("mpp");
+		user.setUid1(3434304340L);
+		
+		user.setId2(111);
+		user.setCreateDate2(new Date());
+		user.setName2("leo");
+		user.setNick2("mpp");
+		user.setUid2(3434304340L);
+		
+		user.setId3(111);
+		user.setCreateDate3(new Date());
+		user.setName3("leo");
+		user.setNick3("mpp");
+		user.setUid3(3434304340L);
+		
 		String json = Bean2Text.toJSONString(user);
+		System.out.println("length:" + json.length());
 		System.out.println("qmikjson:" + json);
 		System.out.println("fastjson:" + JSON.toJSONString(user));
 		long l1 = System.currentTimeMillis();
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 1111130000; i++) {
 			JSON.toJSONString(user);
 			//com.alibaba.fastjson.JSON.toJSONString(user);
 		}
@@ -47,7 +67,7 @@ public class MainBean {
 	}
 	
 	static void test() {
-		IBean bean = StrongBeanFactory.get(UseCase.class, IBean.class);
+		IBean bean = StrongBeanFactory.get(UseCase.class);
 		bean.$$$___setValue("id", 3);
 		//System.out.println(bean.$__getValue("id"));
 		UseCase user = (UseCase) bean;

@@ -2,6 +2,7 @@ package org.qmik.qmikjson.token.asm;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import org.qmik.datamap.QuickData;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
@@ -41,11 +42,14 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, subInternalName, null, superInternalName, interfaces);
 			
+			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keysMap", JavaType.getDesc(QuickData.class), null, null).visitEnd();
+			
 			//创建字段
 			Field[] fields = superClazz.getDeclaredFields();
 			for (Field field : fields) {
 				cw.visitField(ACC_PUBLIC, field.getName(), JavaType.getDesc(field.getType()), null, null).visitEnd();
 			}
+			//cw.visitField(ACC_PUBLIC, "$$$___string", "Ljava/lang/String;", null, null).visitEnd();
 			
 			//Structure,创建构造函数
 			makeStruct(cw, superClazz);
@@ -70,7 +74,12 @@ public class StrongBean extends ClassLoader implements Opcodes {
 					}
 				}
 			}
+			//创建toString方法
 			makeToStringMethod(cw);
+			//创建 static{}
+			makeStaticStruct(cw, subInternalName);
+			//创建keys
+			makeKeysMethod(cw, fields, subInternalName);
 			cw.visitEnd();
 			byte[] code = cw.toByteArray();
 			
@@ -85,13 +94,33 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param cw
 	 * @param superClass
 	 */
+	private static void makeStaticStruct(ClassWriter cw, String subInternalName) {
+		String newClass = Type.getInternalName(QuickData.class);
+		//创建无参构造函数
+		MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+		mv.visitTypeInsn(NEW, newClass);
+		mv.visitInsn(DUP);
+		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "()V");
+		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(QuickData.class));
+		
+		//
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(1, 1);
+		mv.visitEnd();
+	}
+	
+	/**
+	 * 创建构造函数
+	 * @param cw
+	 * @param superClass
+	 */
 	private static void makeStruct(ClassWriter cw, Class<?> superClass) {
 		String superClassName = getInternalName(superClass);
-		
 		//创建无参构造函数
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", "()V");
+		
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
@@ -337,6 +366,16 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitMethodInsn(INVOKESTATIC, beanToInternalName, "toJSONString", "(Ljava/lang/Object;)Ljava/lang/String;");
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(2, 1);
+		mv.visitEnd();
+	}
+	
+	private static void makeKeysMethod(ClassWriter cw, Field[] fields, String subInternalName) {
+		
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "$$$___keys", "()Ljava/util/Map;", null, null);
+		mv.visitCode();
+		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(QuickData.class));
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(1, 1);
 		mv.visitEnd();
 	}
 }

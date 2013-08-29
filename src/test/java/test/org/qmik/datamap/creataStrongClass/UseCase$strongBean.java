@@ -1,5 +1,7 @@
 package test.org.qmik.datamap.creataStrongClass;
 
+import java.util.Map;
+
 import org.qmik.qmikjson.token.IBean;
 import test.org.qmik.datamap.UseCase;
 
@@ -27,5 +29,11 @@ public class UseCase$strongBean implements IBean {
 	}
 	
 	public UseCase$strongBean(UseCase useCase) {
+	}
+
+	@Override
+	public Map<String, char[]> $$$___keys() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

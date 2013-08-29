@@ -18,9 +18,9 @@ public class TestToTextData {
 		};
 		System.out.println(data.output().length());
 		long l1=System.currentTimeMillis();
-		for(int i=0;i<10000;i++){
-			//data.output();
-			com.alibaba.fastjson.JSON.toJSONString(data);
+		for(int i=0;i<50000;i++){
+			data.output();
+			//com.alibaba.fastjson.JSON.toJSONString(data);
 		}
 		
 		System.out.println(System.currentTimeMillis()-l1);
