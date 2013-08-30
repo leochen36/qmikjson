@@ -71,6 +71,9 @@ public final class CharWriter extends Writer {
 	}
 	
 	public CharWriter append(String value, int start, int end) throws IOException {
+		if (size + end - start >= buf.length) {
+			buf = extendedCapacity(buf);
+		}
 		for (int i = start; i < end; i++) {
 			buf[size++] = value.charAt(i);
 		}
@@ -101,5 +104,9 @@ public final class CharWriter extends Writer {
 	@Override
 	public String toString() {
 		return new String(buf, 0, size);
+	}
+	
+	public int size() {
+		return size;
 	}
 }
