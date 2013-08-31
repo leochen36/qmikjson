@@ -12,7 +12,7 @@ public class TestToTextBean {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		User user = new User();
+		User user = StrongBeanFactory.get(User.class);
 		
 		user.setId(111);
 		user.setCreateDate(new Date());

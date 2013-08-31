@@ -40,11 +40,23 @@ public abstract class Token {
 	}
 	
 	protected boolean isList(Object value) {
-		return value instanceof List;
+		return value.getClass() == Array.class;
+	}
+	
+	public Object token(String cs) {
+		return token(cs, null);
+	}
+	
+	public Object token(String cs, Class<?> clazz) {
+		return token(cs.toCharArray(), clazz);
+	}
+	
+	public Object token(char[] cs) {
+		return token(cs, null);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Object token(String json, Class<?> clazz) {
+	public Object token(char[] cs, Class<?> clazz) {
 		LIFO<String> queueKeys = sg_bufLocalKeys.get();//key冒泡
 		LIFO<Object> queueParents = sg_bufLocalNodes.get();//父节点key冒泡
 		queueKeys.clear();
@@ -53,9 +65,6 @@ public abstract class Token {
 		Object root = null;//根节点
 		Object parentNode = null;
 		Object nNode = null;
-		
-		///
-		char[] cs = json.toCharArray();//字符串转为字节数组
 		
 		int jsonLength = cs.length;
 		//
@@ -75,40 +84,40 @@ public abstract class Token {
 			for (int index = 0; index < jsonLength; index++) {
 				switch (cs[index]) {
 				case ':':
+					//连接出现多次:,格式非法
+					if (colonNum >= 1) {
+						throw new JSONException("json: " + new String(cs) + " is Illegal format");
+					}
 					//:之后不可能出现状态valueEnd
 					if (flag == Select.valueEnd) {
-						throw new JSONException("json: " + json + " is Illegal format");
+						throw new JSONException("json: " + new String(cs) + " is Illegal format");
 					}
 					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
 					if (isSelecting(flag)) {
 						continue;
-					}
-					//连接出现多次:,格式非法
-					if (colonNum >= 1) {
-						throw new JSONException("json: " + json + " is Illegal format");
 					}
 					flag = Select.valueUnmarked;
 					posi = limit = index + 1;
 					colonNum++;
 					break;
 				case ',':
+					//连接出现多次,,格式非法
+					if (commaNum >= 1) {
+						throw new JSONException("json: " + new String(cs) + " is Illegal format");
+					}
 					//,之后不可能出现状态keyEnd
 					if (flag == Select.keyEnd) {
-						throw new JSONException("json: " + json + " is Illegal format");
+						throw new JSONException("json: " + new String(cs) + " is Illegal format");
 					}
 					//当前状态是取key或取value,说明 还没取完,此时出现的:是相关的内容,返回
 					if (isSelecting(flag)) {
 						continue;
 					}
-					//连接出现多次,,格式非法
-					if (commaNum >= 1) {
-						throw new JSONException("json: " + json + " is Illegal format");
-					}
 					parentNode = queueParents.peek();
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
 					if (flag == Select.valueUnmarked) {
 						limit = index;
-						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+						flag = add4ByteValue(parentNode, queueKeys, newString(cs, posi, limit));
 						colonNum = commaNum = 0;
 					}
 					if (isList(parentNode)) {
@@ -122,7 +131,7 @@ public abstract class Token {
 					parentNode = queueParents.peek();
 					if (limit < posi) {
 						limit = index;
-						value = json.substring(posi, limit);
+						value = newString(cs, posi, limit);
 						if (flag == Select.key) {
 							queueKeys.add(value);
 							captureKey = true;
@@ -188,7 +197,7 @@ public abstract class Token {
 						}
 						if (flag == Select.valueUnmarked) {
 							limit = index;
-							flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+							flag = add4ByteValue(parentNode, queueKeys, newString(cs, posi, limit));
 							colonNum = commaNum = 0;
 						}
 					}
@@ -232,7 +241,7 @@ public abstract class Token {
 					//如果前面已标记取无引号起来的值,则下面进行聚会操作
 					if (flag == Select.valueUnmarked && posi <= index && ((List) parentNode).size() > 0) {
 						limit = index;
-						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
+						flag = add4ByteValue(parentNode, queueKeys, newString(cs, posi, limit));
 					}
 					colonNum = commaNum = 0;
 					queueParents.pop();
@@ -247,16 +256,12 @@ public abstract class Token {
 				
 			}
 		} catch (Exception e) {
-			throw new JSONException("json: " + json + " is Illegal format", e);
+			throw new JSONException("json: " + new String(cs) + " is Illegal format", e);
 		}
 		if (!queueKeys.isEmpty() || !queueParents.isEmpty()) {
-			throw new JSONException("json: " + json + " is Illegal format");
+			throw new JSONException("json: " + new String(cs) + " is Illegal format");
 		}
 		return root;
-	}
-	
-	public Object token(String json) {
-		return token(json, null);
 	}
 	
 	private boolean isSelecting(Select flag) {
@@ -272,4 +277,9 @@ public abstract class Token {
 		}
 		return Select.valueEnd;
 	}
+	
+	public static String newString(char cs[], int start, int end) {
+		return new String(cs, start, end - start);
+	}
+	
 }

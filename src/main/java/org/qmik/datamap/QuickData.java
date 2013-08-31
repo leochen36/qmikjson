@@ -13,7 +13,7 @@ import java.util.Set;
  * @param <T>
  */
 @SuppressWarnings("serial")
-public class QuickData<T extends IField> extends Data<T> implements Map<String, Object>, IData<T> {
+class QuickData<T extends IField> extends Data<T> implements Map<String, Object>, IData<T> {
 	private int				limit	= 36;
 	private int				size	= 0;
 	protected Entry[]		values;
@@ -30,12 +30,14 @@ public class QuickData<T extends IField> extends Data<T> implements Map<String, 
 	
 	protected static int hash(String str) {
 		int hash = 0, length = str.length();
-		for (int i = 0; i < length; i += 3) {
+		int step = 1;
+		for (int i = 0; i < length; i += step) {
 			if (i >= length) {
 				hash = 31 * hash + (char) str.charAt(length - 1);
 			} else {
 				hash = 31 * hash + (char) str.charAt(i);
 			}
+			step++;
 		}
 		return hash;
 	}

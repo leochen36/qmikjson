@@ -1,8 +1,7 @@
 package org.qmik.qmikjson.token.asm;
 
 import java.lang.reflect.Field;
-
-import org.qmik.datamap.QuickData;
+import java.util.HashMap;
 import org.qmik.qmikjson.token.IBean;
 
 /**
@@ -12,10 +11,9 @@ import org.qmik.qmikjson.token.IBean;
  */
 public class StrongBeanFactory {
 	
-	private final static StrongBeanClump	clump	= new StrongBeanClump();
-	private final static StrongBean			bean	= new StrongBean();
-	@SuppressWarnings("rawtypes")
-	private final static QuickData			names	= new QuickData(1024);
+	private final static StrongBeanClump			clump	= new StrongBeanClump();
+	private final static StrongBean					bean	= new StrongBean();
+	private final static HashMap<String, String>	names	= new HashMap<String, String>();
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Class<?> superClazz) {
@@ -24,7 +22,7 @@ public class StrongBeanFactory {
 			String key = (String) names.get(superClazz.getName());
 			if (key == null) {
 				key = superClazz.getName() + StrongBean.suffix;
-				names.add(superClazz.getName(), key);
+				names.put(superClazz.getName(), key);
 			}
 			Class<?> strongClass = null;
 			

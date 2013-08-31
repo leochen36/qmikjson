@@ -6,7 +6,7 @@ import org.qmik.qmikjson.JSON;
 
 public class JSONTestUnit {
 	
-	private static int	maxJson	= 10000;
+	private static int	maxJson	= 30000;
 	private static int	dealSum	= 1;
 	private static int	arrays	= 30;
 	

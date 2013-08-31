@@ -2,7 +2,7 @@ package org.qmik.qmikjson.token.asm;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.qmik.datamap.QuickData;
+import java.util.HashMap;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
@@ -18,7 +18,8 @@ import org.qmik.qmikjson.util.MixUtil;
  *
  */
 public class StrongBean extends ClassLoader implements Opcodes {
-	public final static String	suffix	= "$StrongBean";
+	public final static String		suffix	= "$StrongBean";
+	public final static Class<?>	STORE		= HashMap.class;
 	
 	public static String getInternalName(Class<?> clazz) {
 		//return clazz.getSimpleName() + suffix;
@@ -42,7 +43,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, subInternalName, null, superInternalName, interfaces);
 			
-			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keysMap", JavaType.getDesc(QuickData.class), null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keysMap", JavaType.getDesc(STORE), null, null).visitEnd();
 			
 			//创建字段
 			Field[] fields = superClazz.getDeclaredFields();
@@ -95,13 +96,13 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param superClass
 	 */
 	private static void makeStaticStruct(ClassWriter cw, String subInternalName) {
-		String newClass = Type.getInternalName(QuickData.class);
+		String newClass = Type.getInternalName(STORE);
 		//创建无参构造函数
 		MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
 		mv.visitTypeInsn(NEW, newClass);
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "()V");
-		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(QuickData.class));
+		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(STORE));
 		
 		//
 		mv.visitInsn(RETURN);
@@ -373,7 +374,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "$$$___keys", "()Ljava/util/Map;", null, null);
 		mv.visitCode();
-		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(QuickData.class));
+		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(STORE));
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();

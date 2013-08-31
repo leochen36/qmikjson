@@ -8,8 +8,10 @@ public class JavaType {
 	public static String getMethodDesc(Class<?>[] paramType, Class<?> returnType) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("(");
-		for (Class<?> type : paramType) {
-			sb.append(getDesc(type));
+		if (paramType != null) {
+			for (Class<?> type : paramType) {
+				sb.append(getDesc(type));
+			}
 		}
 		sb.append(")");
 		sb.append(getDesc(returnType));
