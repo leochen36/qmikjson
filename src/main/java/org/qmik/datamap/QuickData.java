@@ -5,9 +5,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import org.qmik.qmikjson.JSON;
 
-public class QuickData<T extends IField> implements Map<String, Object>, IData<T> {
+/**
+ * 快速实现data,优化hash算法,减少计算hash的时间
+ * @author leo
+ *
+ * @param <T>
+ */
+@SuppressWarnings("serial")
+public class QuickData<T extends IField> extends Data<T> implements Map<String, Object>, IData<T> {
 	private int				limit	= 36;
 	private int				size	= 0;
 	protected Entry[]		values;
@@ -95,11 +101,6 @@ public class QuickData<T extends IField> implements Map<String, Object>, IData<T
 	}
 	
 	@Override
-	public String output() {
-		return toString();
-	}
-	
-	@Override
 	public IData<T> clone() {
 		QuickData<T> data = new QuickData<T>(size);
 		data.values = values;
@@ -107,12 +108,12 @@ public class QuickData<T extends IField> implements Map<String, Object>, IData<T
 	}
 	
 	public String toString() {
-		return JSON.toJSONString(this);
+		return output();
 	}
 	
 	@Override
 	public void clear() {
-		
+		values = new Entry[limit];
 	}
 	
 	@Override
@@ -158,7 +159,7 @@ public class QuickData<T extends IField> implements Map<String, Object>, IData<T
 		}
 		return keySet;
 	}
-
+	
 	@Override
 	public Object put(String key, Object value) {
 		int index = indexFor(hash(key));

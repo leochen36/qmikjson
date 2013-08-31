@@ -106,6 +106,12 @@ public final class CharWriter extends Writer {
 		return new String(buf, 0, size);
 	}
 	
+	public char[] getChars() {
+		char[] cs = new char[size];
+		System.arraycopy(buf, 0, cs, 0, size);
+		return cs;
+	}
+	
 	public int size() {
 		return size;
 	}

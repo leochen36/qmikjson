@@ -45,7 +45,7 @@ public class Data<T extends IField> extends HashMap<String, Object> implements I
 	
 	@Override
 	public String output() {
-		return toString();
+		return JSON.toJSONString(this);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -55,7 +55,7 @@ public class Data<T extends IField> extends HashMap<String, Object> implements I
 	}
 	
 	public String toString() {
-		return JSON.toJSONString(this);
+		return output();
 	}
 	
 }

@@ -3,16 +3,15 @@ package org.qmik.qmikjson;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-
+import org.qmik.datamap.QuickData;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.Data2Text;
-import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 
 public class JSON {
-	private static Map<String, DateFormat>	dfs	= new HashMap<String, DateFormat>();
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Map<String, DateFormat>	dfs	= new QuickData();
 	private final static JSONParse			parse	= new JSONParse();
 	
 	/** 创建增强对象 */
@@ -24,8 +23,9 @@ public class JSON {
 		return parse.parse(json);
 	}
 	
-	public static Object parse(String json, Class<?> clazz) {
-		return parse.parse(json, clazz);
+	@SuppressWarnings("unchecked")
+	public static <T> T parse(String json, Class<T> clazz) {
+		return (T) parse.parse(json, clazz);
 	}
 	
 	public static String toJSONString(Object obj) {
