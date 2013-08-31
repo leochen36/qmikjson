@@ -136,15 +136,15 @@ public abstract class Token {
 						commaNum = colonNum = 0;
 					} else {
 						posi = index + 1;
-						if (parentNode instanceof List) {
-							flag = Select.value;
-							continue;
-						}
 						if (flag == Select.keyEnd) {
 							flag = Select.value;
 							continue;
 						}
 						if (flag == Select.valueUnmarked) {
+							flag = Select.value;
+							continue;
+						}
+						if (parentNode instanceof List) {
 							flag = Select.value;
 							continue;
 						}
