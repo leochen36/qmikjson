@@ -39,6 +39,10 @@ public abstract class Token {
 		node.add(value);
 	}
 	
+	protected boolean isList(Object value) {
+		return value instanceof List;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object token(String json, Class<?> clazz) {
 		LIFO<String> queueKeys = sg_bufLocalKeys.get();//key冒泡
@@ -107,7 +111,7 @@ public abstract class Token {
 						flag = add4ByteValue(parentNode, queueKeys, json.substring(posi, limit));
 						colonNum = commaNum = 0;
 					}
-					if (parentNode instanceof List) {
+					if (isList(parentNode)) {
 						flag = Select.valueUnmarked;
 						posi = limit = index + 1;
 					} else {
@@ -125,7 +129,7 @@ public abstract class Token {
 							flag = Select.keyEnd;
 						} else {
 							//如果当前所属的父节点是数组,则把key当value值 ,否则当正常的key值来对待
-							if (parentNode instanceof List) {
+							if (isList(parentNode)) {
 								add((List) parentNode, value);
 							} else {
 								add(parentNode, queueKeys.pop(), value);
@@ -144,7 +148,7 @@ public abstract class Token {
 							flag = Select.value;
 							continue;
 						}
-						if (parentNode instanceof List) {
+						if (isList(parentNode)) {
 							flag = Select.value;
 							continue;
 						}
@@ -162,7 +166,7 @@ public abstract class Token {
 						continue;
 					}
 					nNode = createDataNode(clazz);
-					if (parentNode instanceof List) {
+					if (isList(parentNode)) {
 						add((List) parentNode, nNode);
 					} else {
 						add(parentNode, queueKeys.pop(), nNode);
@@ -173,7 +177,7 @@ public abstract class Token {
 				case '}':
 					parentNode = queueParents.peek();
 					//如果父节点不是map结构,直接返回
-					if (parentNode instanceof List) {
+					if (isList(parentNode)) {
 						continue;
 					}
 					//如果父节点是,map,并且有内容
@@ -205,10 +209,10 @@ public abstract class Token {
 						continue;
 					}
 					nNode = createArrayNode();
-					if (!(parentNode instanceof List)) {
-						add(parentNode, queueKeys.peek(), nNode);
-					} else {
+					if (isList(parentNode)) {
 						add((List) parentNode, nNode);
+					} else {
+						add(parentNode, queueKeys.peek(), nNode);
 					}
 					queueParents.add(nNode);
 					flag = Select.valueUnmarked;
@@ -218,7 +222,7 @@ public abstract class Token {
 					parentNode = queueParents.peek();
 					
 					//如果父节点不是map结构,直接返回
-					if (!(parentNode instanceof List)) {
+					if (!isList(parentNode)) {
 						continue;
 					}
 					//在选key或value
@@ -232,7 +236,7 @@ public abstract class Token {
 					}
 					colonNum = commaNum = 0;
 					queueParents.pop();
-					if (!(queueParents.peek() instanceof List)) {
+					if (!isList(queueParents.peek())) {
 						queueKeys.pop();
 					}
 					
@@ -261,7 +265,7 @@ public abstract class Token {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Select add4ByteValue(Object parentNode, LIFO<String> queueKeys, String value) {
-		if (parentNode instanceof List) {
+		if (isList(parentNode)) {
 			add((List) parentNode, MixUtil.to4Byte(value));
 		} else {
 			add(parentNode, queueKeys.pop(), MixUtil.to4Byte(value));
