@@ -128,7 +128,6 @@ public abstract class Token {
 					}
 					break;
 				case '"':
-					parentNode = queueParents.peek();
 					if (limit < posi) {
 						limit = index;
 						value = newString(cs, posi, limit);
@@ -137,6 +136,7 @@ public abstract class Token {
 							captureKey = true;
 							flag = Select.keyEnd;
 						} else {
+							parentNode = queueParents.peek();
 							//如果当前所属的父节点是数组,则把key当value值 ,否则当正常的key值来对待
 							if (isList(parentNode)) {
 								add((List) parentNode, value);
@@ -157,6 +157,7 @@ public abstract class Token {
 							flag = Select.value;
 							continue;
 						}
+						parentNode = queueParents.peek();
 						if (isList(parentNode)) {
 							flag = Select.value;
 							continue;

@@ -9,17 +9,20 @@ import org.qmik.qmikjson.Config;
  * @param <E>
  */
 public class LIFO<E> {
-	private Object[]	list	= new Object[Config.MAX_LEVEL];
-	private int			posi	= -1;
+	private E[]	list;
+	private int	posi	= -1;
 	
 	@SuppressWarnings("unchecked")
-	public E pop() {
-		return posi < 0 ? null : (E) list[posi--];
+	public LIFO() {
+		list = (E[]) new Object[Config.MAX_LEVEL];
 	}
 	
-	@SuppressWarnings("unchecked")
+	public E pop() {
+		return posi < 0 ? null : list[posi--];
+	}
+	
 	public E peek() {
-		return posi < 0 ? null : (E) list[posi];
+		return posi < 0 ? null : list[posi];
 	}
 	
 	public void add(E value) {
@@ -38,7 +41,7 @@ public class LIFO<E> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i <= posi; i++) {
-			if(i>0){
+			if (i > 0) {
 				sb.append(",");
 			}
 			sb.append(list[i]);
