@@ -12,8 +12,8 @@ public class TestToTextBean {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		User user = StrongBeanFactory.get(User.class);
-		
+		//User user = StrongBeanFactory.get(User.class);
+		User user=new User();
 		user.setId(111);
 		user.setCreateDate(new Date());
 		user.setName("leoaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
@@ -39,13 +39,14 @@ public class TestToTextBean {
 		user.setUid3(3434304340L);
 		
 		System.out.println(user);
-		System.out.println(user.toString().length());
+		System.out.println("length:"+user.toString().length());
 		long l1 = System.currentTimeMillis();
-		for (int i = 0; i < 20000; i++) {
-			user.toString();
-			//com.alibaba.fastjson.JSON.toJSONString(user);
+		for (int i = 0; i < 50000; i++) {
+			//user.toString();
+			com.alibaba.fastjson.JSON.toJSONString(user);
 		}
 		
 		System.out.println(System.currentTimeMillis() - l1);
+		System.out.println(user.toString());
 	}
 }
