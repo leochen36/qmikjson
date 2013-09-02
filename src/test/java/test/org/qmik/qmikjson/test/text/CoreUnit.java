@@ -6,7 +6,7 @@ import org.qmik.qmikjson.JSON;
 
 public class CoreUnit {
 	
-	private static int	maxJson	= 30000;
+	private static int	maxJson	= 10000;
 	private static int	dealSum	= 1;
 	private static int	arrays	= 30;
 	
@@ -59,7 +59,7 @@ public class CoreUnit {
 			}
 		}
 		long log2 = System.currentTimeMillis();
-		System.out.println("qjson time\t\t" + (log2 - log1));
+		System.out.println("qjson time\t\t" + (log2 - log1) + "ms");
 		System.out.println("qjson xx:" + JSON.parse(jsons[0]));
 	}
 	
@@ -74,7 +74,7 @@ public class CoreUnit {
 			}
 		}
 		long log2 = System.currentTimeMillis();
-		System.out.println("fastjson time\t\t" + (log2 - log1));
+		System.out.println("fastjson time\t\t" + (log2 - log1) + "ms");
 	}
 	
 	public static String[] createJSONS() {
