@@ -16,12 +16,32 @@ import org.qmik.qmikjson.util.MixUtil;
  *
  */
 public class Bean2Text {
-	private static ThreadLocal<CharWriter>		gtl_writers	= new ThreadLocal<CharWriter>() {
-																				protected CharWriter initialValue() {
-																					return new CharWriter(4098);
+	private static ThreadLocal<CharWriter>			gtl_writers	= new ThreadLocal<CharWriter>() {
+																					protected CharWriter initialValue() {
+																						return new CharWriter(4098);
+																					};
 																				};
-																			};
-	private final static Map<String, String>	getMethods	= new HashMap<String, String>(1024);
+	private final static Map<String, String>		sg_methods	= new HashMap<String, String>(1024);
+	private final static Map<Class<?>, Field[]>	sg_fields		= new HashMap<Class<?>, Field[]>(1024);
+	
+	private static Field[] getFields(Class<?> clazz) {
+		Field[] fs = sg_fields.get(clazz);
+		if (fs != null) {
+			return fs;
+		}
+		fs = clazz.getDeclaredFields();
+		sg_fields.put(clazz, fs);
+		return fs;
+	}
+	
+	private static String getMethodName(String field) {
+		String methodName = sg_methods.get(field);
+		if (methodName == null) {
+			methodName = "get" + MixUtil.indexUpper(field, 0);
+			sg_methods.put(field, methodName);
+		}
+		return methodName;
+	}
 	
 	public static String toJSONString(Object bean) {
 		return toJSONString(bean, null);
@@ -57,15 +77,11 @@ public class Bean2Text {
 			} else {
 				//ib = (IBean) BeanUtil.toIBean(bean);
 				String name, methodName;
-				Field[] fields = bean.getClass().getDeclaredFields();
+				Field[] fields = getFields(bean.getClass());
 				for (Field field : fields) {
 					try {
 						name = field.getName();
-						methodName = getMethods.get(name);
-						if (methodName == null) {
-							methodName = "get" + MixUtil.indexUpper(name, 0);
-							getMethods.put(name, methodName);
-						}
+						methodName = getMethodName(name);
 						value = BeanUtil.invokeGet(bean, methodName);
 						if (value == null) {
 							continue;
