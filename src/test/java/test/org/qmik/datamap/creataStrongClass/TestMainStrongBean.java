@@ -22,7 +22,7 @@ public class TestMainStrongBean {
 		user.setNick("mpp");
 		user.setUid(3434304340L);
 		
-		String json = Bean2Text.toJSONString(user);
+		String json = JSON.toJSONString(user);
 		System.out.println("qmikjson:" + json);
 		System.out.println("fastjson:" + JSON.toJSONString(user));
 		long l1 = System.currentTimeMillis();

@@ -1,7 +1,9 @@
 package org.qmik.qmikjson.out;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.qmik.qmikjson.token.IBean;
@@ -22,6 +24,15 @@ public class Bean2Text extends Base2Text {
 	private final static Map<String, String>		sg_methods	= new HashMap<String, String>(1024);
 	private final static Map<Class<?>, Field[]>	sg_fields	= new HashMap<Class<?>, Field[]>(1024);
 	
+	private static Bean2Text							instance		= new Bean2Text();
+	
+	private Bean2Text() {
+	}
+	
+	public static Bean2Text getInstance() {
+		return instance;
+	}
+	
 	private static Field[] getFields(Class<?> clazz) {
 		Field[] fs = sg_fields.get(clazz);
 		if (fs != null) {
@@ -41,7 +52,7 @@ public class Bean2Text extends Base2Text {
 		return methodName;
 	}
 	
-	public static String toJSONString(Object bean) {
+	public String toJSONString(Object bean) {
 		return toJSONString(bean, null);
 	}
 	
@@ -50,7 +61,7 @@ public class Bean2Text extends Base2Text {
 	 * @param bean
 	 * @return
 	 */
-	public static String toJSONString(Object bean, DateFormat df) {
+	public String toJSONString(Object bean, DateFormat df) {
 		try {
 			CharWriter writer = gtl_writers.get();
 			writer.clear();
@@ -98,6 +109,7 @@ public class Bean2Text extends Base2Text {
 			writer.append('}');
 			return writer.toString();
 		} catch (Exception e) {
+			
 		}
 		return null;
 	}

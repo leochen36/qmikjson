@@ -3,6 +3,7 @@ package test.org.qmik.qmikjson.test.bean;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.BeanUtil;
@@ -52,11 +53,11 @@ public class CoreBeanUnit {
 		user.setName3("leoaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 		user.setNick3("mddddddddddddddddddddddddddddadfasfdasfdpp");
 		user.setUid3(3434304340L);
-		user.setFres(new HashMap<String, String>(){
+		/*user.setFres(new HashMap<String, String>(){
 			{
 				put("11a","a");
 			}
-		});
+		});*/
 	}
 	
 	/**
@@ -80,7 +81,7 @@ public class CoreBeanUnit {
 		System.out.println("length:" + user.toString().length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
-			Bean2Text.toJSONString(user);
+			JSON.toJSONString(user);
 		}
 		long lg = System.currentTimeMillis();
 		System.out.println("耗时:" + (lg - l1) + "ms");

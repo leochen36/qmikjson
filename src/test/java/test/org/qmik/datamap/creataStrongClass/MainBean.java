@@ -50,7 +50,7 @@ public class MainBean {
 		user.setNick3("mpp");
 		user.setUid3(3434304340L);
 		
-		String json = Bean2Text.toJSONString(user);
+		String json = JSON.toJSONString(user);
 		System.out.println("length:" + json.length());
 		System.out.println("qmikjson:" + json);
 		System.out.println("fastjson:" + JSON.toJSONString(user));

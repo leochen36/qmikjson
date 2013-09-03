@@ -77,7 +77,7 @@ public class CoreMapUnit {
 		System.out.println("length:" + user.toString().length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
-			Data2Text.map2JSON(user, null);
+			JSON.toJSONString(user);
 		}
 		long lg = System.currentTimeMillis();
 		System.out.println("耗时:" + (lg - l1) + "ms");

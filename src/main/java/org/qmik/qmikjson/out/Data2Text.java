@@ -14,16 +14,24 @@ import org.qmik.qmikjson.util.MixUtil;
  * @author leo
  *
  */
-public class Data2Text extends Base2Text {
+public class Data2Text {
 	private static ThreadLocal<SoftReference<CharWriter>>	gtl_writers	= new ThreadLocal<SoftReference<CharWriter>>() {
 																								@SuppressWarnings({ "unchecked", "rawtypes" })
 																								protected SoftReference<CharWriter> initialValue() {
 																									return new SoftReference(new CharWriter(1024));
 																								};
 																							};
+	private static Data2Text										instance		= new Data2Text();
+	
+	private Data2Text() {
+	}
+	
+	public static Data2Text getInstance() {
+		return instance;
+	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static String list2JSON(Collection<Object> list, DateFormat df) {
+	public String list2JSON(Collection<Object> list, DateFormat df) {
 		CharWriter writer = gtl_writers.get().get();
 		if (writer == null) {
 			gtl_writers.set(new SoftReference(new CharWriter(1024)));
@@ -34,7 +42,7 @@ public class Data2Text extends Base2Text {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void list2JSON(CharWriter writer, Collection<Object> list, DateFormat df) {
+	protected void list2JSON(CharWriter writer, Collection<Object> list, DateFormat df) {
 		try {
 			writer.append('[');
 			Iterator<Object> vals = list.iterator();
@@ -56,7 +64,7 @@ public class Data2Text extends Base2Text {
 					}
 					list2JSON(writer, (Collection) value, df);
 				} else {
-					writer.append('"').append(value.toString()).append('"');
+					writer.append("\"").append(value.toString()).append('"');
 				}
 				if (vals.hasNext()) {
 					writer.append(',');
@@ -69,7 +77,7 @@ public class Data2Text extends Base2Text {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String map2JSON(Map map, DateFormat df) {
+	public String map2JSON(Map map, DateFormat df) {
 		CharWriter writer = gtl_writers.get().get();
 		if (writer == null) {
 			gtl_writers.set(new SoftReference(new CharWriter(1024)));
@@ -80,22 +88,36 @@ public class Data2Text extends Base2Text {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static void map2JSON(CharWriter writer, Map map, DateFormat df) {
+	protected void map2JSON(CharWriter writer, Map map, DateFormat df) {
 		try {
 			writer.append('{');
 			Iterator<Object> keys = map.keySet().iterator();
-			Object name;
+			Object key;
 			Object value;
 			while (keys.hasNext()) {
-				name = keys.next();
-				if (name == null) {
+				key = keys.next();
+				if (key == null) {
 					continue;
 				}
-				value = map.get(name);
+				value = map.get(key);
 				if (value == null) {
 					continue;
 				}
-				append(writer, name.toString(), value, df);
+				writer.append('"').append(key.toString()).append("\":");
+				if (value instanceof CharSequence) {
+					writer.append('"').append(value.toString()).append('"');
+				} else if (MixUtil.isPrimitive(value.getClass())) {
+					writer.append(String.valueOf(value));
+				} else if (value instanceof Map) {
+					if (value == map) {
+						continue;
+					}
+					map2JSON(writer, (Map) value, df);
+				} else if (value instanceof Collection) {
+					list2JSON(writer, (Collection) value, df);
+				} else {
+					writer.append('"').append(value.toString()).append('"');
+				}
 				if (keys.hasNext()) {
 					writer.append(',');
 				}

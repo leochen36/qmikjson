@@ -11,8 +11,10 @@ import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.MixUtil;
 
 public class JSON {
-	private static Map<String, DateFormat>	dfs	= new HashMap<String, DateFormat>();
-	private final static JSONParse			parse	= new JSONParse();
+	private static Map<String, DateFormat>	dfs			= new HashMap<String, DateFormat>();
+	private final static JSONParse			parse			= new JSONParse();
+	private final static Bean2Text			bean2Text	= Bean2Text.getInstance();
+	private final static Data2Text			data2Text	= Data2Text.getInstance();
 	
 	/** 创建增强对象 */
 	public static <T> T makeStrong(Class<T> clazz) {
@@ -58,11 +60,11 @@ public class JSON {
 		}
 		
 		if (obj instanceof Map) {
-			return Data2Text.map2JSON((Map) obj, df);
+			return data2Text.map2JSON((Map) obj, df);
 		}
 		if (obj instanceof Collection) {
-			return Data2Text.list2JSON((Collection) obj, df);
+			return data2Text.list2JSON((Collection) obj, df);
 		}
-		return Bean2Text.toJSONString(obj, df);
+		return bean2Text.toJSONString(obj, df);
 	}
 }

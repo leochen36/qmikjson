@@ -3,12 +3,13 @@ package org.qmik.qmikjson.token.asm;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+
+import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Opcodes;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
-import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.util.MixUtil;
 
@@ -353,7 +354,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	private static String	beanToInternalName	= getInternalName(Bean2Text.class);
+	private static String	beanToInternalName	= getInternalName(JSON.class);
 	
 	/**
 	 * 创建 toString方法
