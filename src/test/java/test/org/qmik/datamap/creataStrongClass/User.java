@@ -1,30 +1,41 @@
 package test.org.qmik.datamap.creataStrongClass;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.qmik.qmikjson.out.Bean2Text;
 
 public class User {
+	private Map<String, String>	fres;
 	
-	private int		id;
-	private long	uid;
-	private String	name;
-	private Date	createDate;
-	private String	nick;
-	private int		id1;
-	private long	uid1;
-	private String	name1;
-	private Date	createDate1;
-	private String	nick1;
-	private int		id2;
-	private long	uid2;
-	private String	name2;
-	private Date	createDate2;
-	private String	nick2;
-	private int		id3;
-	private long	uid3;
-	private String	name3;
-	private Date	createDate3;
+	public Map<String, String> getFres() {
+		return fres;
+	}
+
+	public void setFres(Map<String, String> fres) {
+		this.fres = fres;
+	}
+
+	private int							id;
+	private long						uid;
+	private String						name;
+	private Date						createDate;
+	private String						nick;
+	private int							id1;
+	private long						uid1;
+	private String						name1;
+	private Date						createDate1;
+	private String						nick1;
+	private int							id2;
+	private long						uid2;
+	private String						name2;
+	private Date						createDate2;
+	private String						nick2;
+	private int							id3;
+	private long						uid3;
+	private String						name3;
+	private Date						createDate3;
 	private String	nick3;
 	
 	public int getId1() {

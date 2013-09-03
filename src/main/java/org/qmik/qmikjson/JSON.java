@@ -8,6 +8,7 @@ import java.util.Map;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.Data2Text;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+import org.qmik.qmikjson.util.MixUtil;
 
 public class JSON {
 	private static Map<String, DateFormat>	dfs	= new HashMap<String, DateFormat>();
@@ -32,11 +33,6 @@ public class JSON {
 	}
 	
 	public static String toJSONStringWithDateFormat(Object obj, String formate) {
-		return toJSON(obj, formate);
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static String toJSON(Object obj, String formate) {
 		DateFormat df = null;
 		if (formate != null) {
 			df = dfs.get(formate);
@@ -45,6 +41,22 @@ public class JSON {
 				dfs.put(formate, df);
 			}
 		}
+		return toJSON(obj, df);
+	}
+	
+	public static String toJSONStringWithDateFormat(Object obj, DateFormat df) {
+		return toJSON(obj, df);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static String toJSON(Object obj, DateFormat df) {
+		if (obj instanceof CharSequence) {
+			return obj.toString();
+		}
+		if (MixUtil.isPrimitive(obj.getClass())) {
+			return obj.toString();
+		}
+		
 		if (obj instanceof Map) {
 			return Data2Text.map2JSON((Map) obj, df);
 		}

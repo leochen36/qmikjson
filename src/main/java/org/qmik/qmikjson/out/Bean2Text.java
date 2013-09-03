@@ -1,9 +1,7 @@
 package org.qmik.qmikjson.out;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.qmik.qmikjson.token.IBean;
@@ -15,14 +13,14 @@ import org.qmik.qmikjson.util.MixUtil;
  * @author leo
  *
  */
-public class Bean2Text {
+public class Bean2Text extends Base2Text {
 	private static ThreadLocal<CharWriter>			gtl_writers	= new ThreadLocal<CharWriter>() {
 																					protected CharWriter initialValue() {
 																						return new CharWriter(4098);
 																					};
 																				};
 	private final static Map<String, String>		sg_methods	= new HashMap<String, String>(1024);
-	private final static Map<Class<?>, Field[]>	sg_fields		= new HashMap<Class<?>, Field[]>(1024);
+	private final static Map<Class<?>, Field[]>	sg_fields	= new HashMap<Class<?>, Field[]>(1024);
 	
 	private static Field[] getFields(Class<?> clazz) {
 		Field[] fs = sg_fields.get(clazz);
@@ -100,24 +98,7 @@ public class Bean2Text {
 			writer.append('}');
 			return writer.toString();
 		} catch (Exception e) {
-			
 		}
 		return null;
-	}
-	
-	private static void append(CharWriter writer, String name, Object value, DateFormat df) throws IOException {
-		if (MixUtil.isPrimitive(value.getClass())) {
-			writer.append('"').append(name).append("\":").append(value.toString());
-		} else {
-			if (value instanceof Date) {
-				if (df == null) {
-					writer.append('"').append(name).append("\":").append(((Date) value).getTime() + "");
-				} else {
-					writer.append('"').append(name).append("\":\"").append(df.format(value)).append("\"");
-				}
-			} else {
-				writer.append('"').append(name).append("\":\"").append(value.toString()).append("\"");
-			}
-		}
 	}
 }

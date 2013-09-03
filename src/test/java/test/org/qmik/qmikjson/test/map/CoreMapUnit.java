@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.Data2Text;
 import org.qmik.qmikjson.token.IBean;
@@ -80,6 +81,7 @@ public class CoreMapUnit {
 		}
 		long lg = System.currentTimeMillis();
 		System.out.println("耗时:" + (lg - l1) + "ms");
+		System.out.println("json:" + JSON.toJSONString(user));
 	}
 	
 	public static void testFastJSON() {

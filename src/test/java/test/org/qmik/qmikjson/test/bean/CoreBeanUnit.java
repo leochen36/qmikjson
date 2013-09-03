@@ -1,6 +1,7 @@
 package test.org.qmik.qmikjson.test.bean;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
@@ -51,7 +52,11 @@ public class CoreBeanUnit {
 		user.setName3("leoaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 		user.setNick3("mddddddddddddddddddddddddddddadfasfdasfdpp");
 		user.setUid3(3434304340L);
-		
+		user.setFres(new HashMap<String, String>(){
+			{
+				put("11a","a");
+			}
+		});
 	}
 	
 	/**

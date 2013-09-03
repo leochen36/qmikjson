@@ -14,7 +14,7 @@ import org.qmik.qmikjson.util.MixUtil;
  * @author leo
  *
  */
-public class Data2Text {
+public class Data2Text extends Base2Text {
 	private static ThreadLocal<SoftReference<CharWriter>>	gtl_writers	= new ThreadLocal<SoftReference<CharWriter>>() {
 																								@SuppressWarnings({ "unchecked", "rawtypes" })
 																								protected SoftReference<CharWriter> initialValue() {
@@ -56,7 +56,7 @@ public class Data2Text {
 					}
 					list2JSON(writer, (Collection) value, df);
 				} else {
-					writer.append("\"").append(value.toString()).append('"');
+					writer.append('"').append(value.toString()).append('"');
 				}
 				if (vals.hasNext()) {
 					writer.append(',');
@@ -84,32 +84,18 @@ public class Data2Text {
 		try {
 			writer.append('{');
 			Iterator<Object> keys = map.keySet().iterator();
-			Object key;
+			Object name;
 			Object value;
 			while (keys.hasNext()) {
-				key = keys.next();
-				if (key == null) {
+				name = keys.next();
+				if (name == null) {
 					continue;
 				}
-				value = map.get(key);
+				value = map.get(name);
 				if (value == null) {
 					continue;
 				}
-				writer.append('"').append(key.toString()).append("\":");
-				if (value instanceof CharSequence) {
-					writer.append('"').append(value.toString()).append('"');
-				} else if (MixUtil.isPrimitive(value.getClass())) {
-					writer.append(String.valueOf(value));
-				} else if (value instanceof Map) {
-					if (value == map) {
-						continue;
-					}
-					map2JSON(writer, (Map) value, df);
-				} else if (value instanceof Collection) {
-					list2JSON(writer, (Collection) value, df);
-				} else {
-					writer.append('"').append(value.toString()).append('"');
-				}
+				append(writer, name.toString(), value, df);
 				if (keys.hasNext()) {
 					writer.append(',');
 				}
