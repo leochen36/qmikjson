@@ -1,7 +1,7 @@
 qmikjson
 ========
 
-<h2>性能出众,高效的json解析引擎,是目前最高的解析引擎之一,比之fastjson有25%-300%左右的性能提升</h2>
+<h2>性能出众,高效的json解析引擎,是目前最高的解析引擎之一,比之fastjson有25%-200%左右的性能提升</h2>
 
 <h3 style="font-size:18px;">使用方式:</h3>
 <h4>//全路径: org.qmik.qmikjson.JSON</p>
@@ -28,4 +28,4 @@ user.setId(11);
 user.setName("aaa");
 json.toJSONString(bean);
 
-<h2 style="font-size:18px;color:red;">这种的转换性能可以提升300%以上</h2>
+<h2 style="font-size:18px;color:red;">这种的转换性能可以提升200%以上</h2>
