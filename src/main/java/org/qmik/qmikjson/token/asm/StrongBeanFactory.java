@@ -35,8 +35,8 @@ public class StrongBeanFactory {
 					value = (T) strongClass.newInstance();
 					IBean bean = (IBean) value;
 					Field[] fields = superClazz.getDeclaredFields();
-					for (Field field : fields) {
-						bean.$$$___keys().put(field.getName(), field.getName().toCharArray());
+					for (int i = 0; i < fields.length; i++) {
+						bean.$$$___keys().add(fields[i].getName());
 					}
 					return value;
 				}

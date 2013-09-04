@@ -43,6 +43,9 @@ public class JavaType {
 		if (type == double.class) {
 			return "D";
 		}
+		if(type==String[].class){
+			return "[Ljava/lang/String;";
+		}
 		////////////////////////////
 		if (type.isArray()) {
 			if (type == boolean[].class) {

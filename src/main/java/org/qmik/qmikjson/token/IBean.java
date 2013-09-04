@@ -1,6 +1,6 @@
 package org.qmik.qmikjson.token;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 增加子类 接口
@@ -13,6 +13,6 @@ public interface IBean {
 	
 	public Object $$$___getValue(String name);
 	
-	public Map<String, char[]> $$$___keys();
+	public List<String> $$$___keys();
 	
 }

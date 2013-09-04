@@ -129,4 +129,14 @@ public class MixUtil {
 	public static String getRunPath() {
 		return Thread.currentThread().getContextClassLoader().getResource("").getFile();
 	}
+	public static void main(String[] args) {
+		long l1 = System.currentTimeMillis();
+		Object o=3;
+		for (int i = 0; i < 100000000; i++) {
+			isPrimitive(o.getClass());
+		}
+		System.out.println(System.currentTimeMillis() - l1);
+		System.out.println(o.getClass().isPrimitive());
+		System.out.println(o.getClass());
+	}
 }

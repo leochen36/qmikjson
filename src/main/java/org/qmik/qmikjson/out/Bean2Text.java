@@ -1,14 +1,13 @@
 package org.qmik.qmikjson.out;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.util.BeanUtil;
-import org.qmik.qmikjson.util.MixUtil;
 
 /**
  * bean 转换成 json 字符串
@@ -21,8 +20,7 @@ public class Bean2Text extends Base2Text {
 																						return new CharWriter(4098);
 																					};
 																				};
-	private final static Map<String, String>		sg_methods	= new HashMap<String, String>(1024);
-	private final static Map<Class<?>, Field[]>	sg_fields	= new HashMap<Class<?>, Field[]>(1024);
+	private final static Map<Class<?>, Method[]>	sg_methods	= new HashMap<Class<?>, Method[]>(1024);
 	
 	private static Bean2Text							instance		= new Bean2Text();
 	
@@ -33,23 +31,24 @@ public class Bean2Text extends Base2Text {
 		return instance;
 	}
 	
-	private static Field[] getFields(Class<?> clazz) {
-		Field[] fs = sg_fields.get(clazz);
-		if (fs != null) {
-			return fs;
+	private static Method[] getMethods(Class<?> clazz) {
+		Method[] methods = sg_methods.get(clazz);
+		if (methods == null) {
+			methods = clazz.getDeclaredMethods();
+			List<Method> list = new ArrayList<Method>();
+			for (Method method : methods) {
+				if (!method.getName().startsWith("get")) {
+					continue;
+				}
+				if (method.getParameterTypes().length > 0) {
+					continue;
+				}
+				list.add(method);
+			}
+			methods = list.toArray(new Method[list.size()]);
+			sg_methods.put(clazz, methods);
 		}
-		fs = clazz.getDeclaredFields();
-		sg_fields.put(clazz, fs);
-		return fs;
-	}
-	
-	private static String getMethodName(String field) {
-		String methodName = sg_methods.get(field);
-		if (methodName == null) {
-			methodName = "get" + MixUtil.indexUpper(field, 0);
-			sg_methods.put(field, methodName);
-		}
-		return methodName;
+		return methods;
 	}
 	
 	public String toJSONString(Object bean) {
@@ -62,17 +61,24 @@ public class Bean2Text extends Base2Text {
 	 * @return
 	 */
 	public String toJSONString(Object bean, DateFormat df) {
+		CharWriter writer = gtl_writers.get();
+		writer.clear();
+		toStringWriter(writer, bean, df);
+		return writer.toString();
+	}
+	
+	@Override
+	protected void toStringWriter(CharWriter writer, Object bean, DateFormat df) {
 		try {
-			CharWriter writer = gtl_writers.get();
-			writer.clear();
-			IBean ib;
 			Object value;
 			boolean gtOne = false;
 			writer.append('{');
 			if (bean instanceof IBean) {
-				ib = (IBean) bean;
-				Map<String, char[]> keys = ib.$$$___keys();
-				for (String name : keys.keySet()) {
+				IBean ib = (IBean) bean;
+				List<String> keys = ib.$$$___keys();
+				String name;
+				for (int i = 0; i < keys.size(); i++) {
+					name = keys.get(i);
 					value = ib.$$$___getValue(name);
 					if (value == null) {
 						continue;
@@ -80,37 +86,31 @@ public class Bean2Text extends Base2Text {
 					if (gtOne) {
 						writer.append(',');
 					}
-					append(writer, name, value, df);
+					append(writer, bean, name, value, df);
 					gtOne = true;
 				}
 			} else {
-				//ib = (IBean) BeanUtil.toIBean(bean);
-				String name, methodName;
-				Field[] fields = getFields(bean.getClass());
-				for (Field field : fields) {
+				String name;
+				Method[] methods = getMethods(bean.getClass());
+				for (int i = 0; i < methods.length; i++) {
 					try {
-						name = field.getName();
-						methodName = getMethodName(name);
-						value = BeanUtil.invokeGet(bean, methodName);
+						name = methods[i].getName();
+						value = BeanUtil.invokeGet(bean, name);
 						if (value == null) {
 							continue;
 						}
 						if (gtOne) {
 							writer.append(',');
 						}
-						append(writer, name, value, df);
+						append(writer, bean, name, value, df);
 						gtOne = true;
 					} catch (Exception e) {
-						
 					}
 				}
 			}
-			
 			writer.append('}');
-			return writer.toString();
 		} catch (Exception e) {
-			
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 }

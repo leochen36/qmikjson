@@ -2,8 +2,7 @@ package org.qmik.qmikjson.token.asm;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-
+import java.util.ArrayList;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
@@ -20,7 +19,7 @@ import org.qmik.qmikjson.util.MixUtil;
  */
 public class StrongBean extends ClassLoader implements Opcodes {
 	public final static String		suffix	= "$StrongBean";
-	public final static Class<?>	STORE		= HashMap.class;
+	public final static Class<?>	STORE		= ArrayList.class;
 	
 	public static String getInternalName(Class<?> clazz) {
 		//return clazz.getSimpleName() + suffix;
@@ -44,7 +43,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, subInternalName, null, superInternalName, interfaces);
 			
-			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keysMap", JavaType.getDesc(STORE), null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keys", JavaType.getDesc(STORE), null, null).visitEnd();
 			
 			//创建字段
 			Field[] fields = superClazz.getDeclaredFields();
@@ -103,7 +102,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitTypeInsn(NEW, newClass);
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "()V");
-		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(STORE));
+		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keys", JavaType.getDesc(STORE));
 		
 		//
 		mv.visitInsn(RETURN);
@@ -373,9 +372,9 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	
 	private static void makeKeysMethod(ClassWriter cw, Field[] fields, String subInternalName) {
 		
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "$$$___keys", "()Ljava/util/Map;", null, null);
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "$$$___keys", "()Ljava/util/List;", null, null);
 		mv.visitCode();
-		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keysMap", JavaType.getDesc(STORE));
+		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keys", JavaType.getDesc(STORE));
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
