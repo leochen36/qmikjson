@@ -65,6 +65,15 @@ public final class CharWriter extends Writer {
 		return this;
 	}
 	
+	public CharWriter append(CharWriter src) throws IOException {
+		if (size + src.size >= buf.length) {
+			buf = extendedCapacity(buf, size + src.size);
+		}
+		System.arraycopy(src.buf, 0, buf, size, src.size);
+		size += src.size;
+		return this;
+	}
+	
 	@Override
 	public void write(char[] cs) throws IOException {
 		write(cs, 0, cs.length);
@@ -82,6 +91,17 @@ public final class CharWriter extends Writer {
 	protected char[] extendedCapacity(char[] buf) {
 		char[] tmp = buf;
 		buf = new char[tmp.length * 2];
+		System.arraycopy(tmp, 0, buf, 0, tmp.length);
+		return buf;
+	}
+	
+	protected char[] extendedCapacity(char[] buf, int count) {
+		char[] tmp = buf;
+		int length = tmp.length << 1;
+		if (length < count) {
+			length = count << 1;
+		}
+		buf = new char[length];
 		System.arraycopy(tmp, 0, buf, 0, tmp.length);
 		return buf;
 	}
