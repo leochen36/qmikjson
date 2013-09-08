@@ -1,7 +1,6 @@
 package org.qmik.qmikjson.out;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.text.DateFormat;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,13 +11,7 @@ import java.util.Map;
  *
  */
 public class Data2Text extends Base2Text {
-	private static ThreadLocal<SoftReference<CharWriter>>	gtl_writers	= new ThreadLocal<SoftReference<CharWriter>>() {
-																								@SuppressWarnings({ "unchecked", "rawtypes" })
-																								protected SoftReference<CharWriter> initialValue() {
-																									return new SoftReference(new CharWriter(1024));
-																								};
-																							};
-	private static Data2Text										instance		= new Data2Text();
+	private static Data2Text	instance	= new Data2Text();
 	
 	private Data2Text() {
 	}
@@ -27,13 +20,9 @@ public class Data2Text extends Base2Text {
 		return instance;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public String map2JSON(Map map, DateFormat df) {
-		CharWriter writer = gtl_writers.get().get();
-		if (writer == null) {
-			gtl_writers.set(new SoftReference(new CharWriter(1024)));
-		}
-		writer.clear();
+		CharWriter writer = new CharWriter(getSize(map));
 		try {
 			map2JSON(writer, map, df);
 		} catch (IOException e) {
