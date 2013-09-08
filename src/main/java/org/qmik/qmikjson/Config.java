@@ -15,6 +15,7 @@ public class Config {
 	 * 	}<br/>
 	 * }<br/>
 	 */
-	public static int	MAX_LEVEL	= 128;
+	public static int			MAX_LEVEL	= 128;
 	
+	public static boolean	debug			= false;
 }
