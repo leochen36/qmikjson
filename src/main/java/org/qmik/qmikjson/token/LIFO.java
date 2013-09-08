@@ -29,6 +29,10 @@ public class LIFO<E> {
 		list[++posi] = value;
 	}
 	
+	public int size() {
+		return posi + 1;
+	}
+	
 	public boolean isEmpty() {
 		return posi < 0;
 	}
