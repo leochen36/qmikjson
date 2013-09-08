@@ -22,7 +22,7 @@ public class CoreMapUnit {
 		IBean user = StrongBeanFactory.get(User.class);
 		initBean((User) user);
 		Map<String, Object> map = new HashMap<String, Object>();
-		for (String field : user.$$$___keys().keySet()) {
+		for (String field : user.$$$___keys()) {
 			map.put(field, user.$$$___getValue(field));
 		}
 		return map;

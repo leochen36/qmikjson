@@ -1,13 +1,18 @@
 package test.org.qmik.qmikjson.test.bean;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.BeanUtil;
 
+import test.org.qmik.datamap.creataStrongClass.Account;
+import test.org.qmik.datamap.creataStrongClass.AccountInfo;
 import test.org.qmik.datamap.creataStrongClass.User;
 
 public class CoreBeanUnit {
@@ -25,6 +30,8 @@ public class CoreBeanUnit {
 	
 	public static User createIBean() {
 		User user = StrongBeanFactory.get(User.class);
+		//User user = new User();
+		
 		initBean(user);
 		return user;
 	}
@@ -53,11 +60,33 @@ public class CoreBeanUnit {
 		user.setName3("leoaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 		user.setNick3("mddddddddddddddddddddddddddddadfasfdasfdpp");
 		user.setUid3(3434304340L);
-		/*user.setFres(new HashMap<String, String>(){
-			{
-				put("11a","a");
-			}
-		});*/
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("11a", "a");
+		user.setFres(map);
+		
+		Account account = StrongBeanFactory.get(Account.class);
+		account.setFee(167.1);
+		account.setId(11);
+		account.setUserId("76");
+		user.setAccount(account);
+		user.setAccount1(account);
+		
+		AccountInfo accountInfo = StrongBeanFactory.get(AccountInfo.class);
+		accountInfo.setAccountId(11);
+		accountInfo.setId(111);
+		accountInfo.setInfo("asfdasf");
+		account.setAccountInfo(accountInfo);
+		List<Account> array = new ArrayList<Account>();
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		array.add(account);
+		user.setAccounts(array);
 	}
 	
 	/**

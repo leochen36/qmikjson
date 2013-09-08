@@ -11,6 +11,7 @@ public class TestQmikJSON {
 		System.out.println("qmikjson 1:" + JSON.parse(json));
 		String[] jsons = JSONTestUnit.createJSONS();
 		JSONTestUnit.testQJSON(jsons);
+		System.out.println(JSON.toJSONString(jsons[0]));
 		//System.out.println("lc:"+Token.lc);
 	}
 	
