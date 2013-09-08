@@ -18,8 +18,10 @@ import org.qmik.qmikjson.util.MixUtil;
  *
  */
 public class StrongBean extends ClassLoader implements Opcodes {
-	public final static String		suffix	= "$StrongBean";
-	public final static Class<?>	STORE		= ArrayList.class;
+	public final static String		STORE_FIELD			= "$$$___keys";
+	public final static String		SERIALVERSIONUID	= "serialVersionUID";
+	public final static String		suffix				= "$StrongBean";
+	public final static Class<?>	STORE					= ArrayList.class;
 	
 	public static String getInternalName(Class<?> clazz) {
 		//return clazz.getSimpleName() + suffix;
@@ -43,11 +45,14 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, subInternalName, null, superInternalName, interfaces);
 			
-			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$$$___keys", JavaType.getDesc(STORE), null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, STORE_FIELD, JavaType.getDesc(STORE), null, null).visitEnd();
 			
 			//创建字段
 			Field[] fields = superClazz.getDeclaredFields();
 			for (Field field : fields) {
+				if (SERIALVERSIONUID.equals(field.getName())) {
+					continue;
+				}
 				cw.visitField(ACC_PUBLIC, field.getName(), JavaType.getDesc(field.getType()), null, null).visitEnd();
 			}
 			//cw.visitField(ACC_PUBLIC, "$$$___string", "Ljava/lang/String;", null, null).visitEnd();
@@ -102,7 +107,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitTypeInsn(NEW, newClass);
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "()V");
-		mv.visitFieldInsn(PUTSTATIC, subInternalName, "$$$___keys", JavaType.getDesc(STORE));
+		mv.visitFieldInsn(PUTSTATIC, subInternalName, STORE_FIELD, JavaType.getDesc(STORE));
 		
 		//
 		mv.visitInsn(RETURN);
@@ -372,9 +377,9 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	
 	private static void makeKeysMethod(ClassWriter cw, Field[] fields, String subInternalName) {
 		
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "$$$___keys", "()Ljava/util/List;", null, null);
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, STORE_FIELD, "()Ljava/util/List;", null, null);
 		mv.visitCode();
-		mv.visitFieldInsn(GETSTATIC, subInternalName, "$$$___keys", JavaType.getDesc(STORE));
+		mv.visitFieldInsn(GETSTATIC, subInternalName, STORE_FIELD, JavaType.getDesc(STORE));
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();

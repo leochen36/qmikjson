@@ -5,8 +5,8 @@ import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 
 public class BeanUtil {
-	private static Object[]		NULLS			= new Object[] {};
-	private static Class<?>[]	NULLS_CLASS	= new Class[] {};
+	public final static Object[]		NULLS			= new Object[] {};
+	public final static Class<?>[]	NULLS_CLASS	= new Class[] {};
 	
 	public static Object invoke(Object target, Method mothod) {
 		try {
