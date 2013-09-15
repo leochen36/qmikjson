@@ -199,6 +199,11 @@ public abstract class Token {
 						continue;
 					}
 					parentNode = queueParents.peek();
+					if (parentNode == null) {
+						if (queueKeys.isEmpty() && queueParents.isEmpty()) {
+							break;
+						}
+					}
 					nNode = createDataNode(clazz, parentNode, queueKeys.peek());
 					if (isList(parentNode)) {
 						add((List) parentNode, nNode);

@@ -15,10 +15,11 @@ public class Config {
 	 * 	}<br/>
 	 * }<br/>
 	 */
-	public static int			MAX_LEVEL	= 128;
+	public static int			max_level	= 128;
 	/** fifo队列最大的大小 */
-	public static int			MAX_FIFO		= 128;
+	public static int			max_fifo		= 128;
+	/** 调整模式 */
 	public static boolean	debug			= false;
-	
-	public static int			mul			= 0;
+	/** 调整输出字符串超过 mul 次,走缓存 */
+	public static int			mul			= 3;
 }

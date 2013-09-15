@@ -9,7 +9,7 @@ public class FIFO<E> implements Cloneable {
 	
 	@SuppressWarnings("unchecked")
 	public FIFO() {
-		list = (E[]) new Object[Config.MAX_FIFO];
+		list = (E[]) new Object[Config.max_fifo];
 	}
 	
 	public FIFO(FIFO<E> fifo) {

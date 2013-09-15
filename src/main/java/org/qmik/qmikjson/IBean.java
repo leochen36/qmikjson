@@ -10,7 +10,10 @@ import org.qmik.qmikjson.out.CharWriter;
  * @author leo
  *
  */
-public interface IBean extends IState {
+public interface IBean {
+	/** hash */
+	public int $$$___hash();
+	
 	/** 设置字段值 */
 	public void $$$___setValue(String name, Object value);
 	

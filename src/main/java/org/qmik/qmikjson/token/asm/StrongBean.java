@@ -1,11 +1,9 @@
 package org.qmik.qmikjson.token.asm;
 
-import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.qmik.qmikjson.Config;
 import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
@@ -152,9 +150,6 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			//
 			cw.visitEnd();
 			byte[] code = cw.toByteArray();
-			FileOutputStream fos = new FileOutputStream("D:/a.class");
-			fos.write(code);
-			fos.close();
 			return this.defineClass(subInternalName.replace("/", "."), code, 0, code.length);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

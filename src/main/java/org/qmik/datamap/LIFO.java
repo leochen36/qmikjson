@@ -14,7 +14,7 @@ public class LIFO<E> {
 	
 	@SuppressWarnings("unchecked")
 	public LIFO() {
-		list = (E[]) new Object[Config.MAX_LEVEL];
+		list = (E[]) new Object[Config.max_level];
 	}
 	
 	public E pop() {
