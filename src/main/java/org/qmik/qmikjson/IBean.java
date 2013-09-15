@@ -1,6 +1,7 @@
-package org.qmik.qmikjson.token;
+package org.qmik.qmikjson;
 
 import java.util.List;
+import java.util.Map;
 
 import org.qmik.qmikjson.out.CharWriter;
 
@@ -16,8 +17,11 @@ public interface IBean extends IState {
 	/** 取得字段值 */
 	public Object $$$___getValue(String name);
 	
-	/** 取得对象的所有字段名 */
+	/** 取得对象的所有字段名  <br/><b>注意:不能往里面加入内容</b> */
 	public List<String> $$$___keys();
+	
+	/** 取得对象的所有字段名 <br/><b>注意:不能往里面加入内容</b> */
+	public Map<String, Class<?>> $$$___fieldTypes();
 	
 	/** 会对普通javabean对象生成IBean对象,把javabean对象赋值给 IBean */
 	public void $$$___setTarget(Object target);
@@ -37,9 +41,4 @@ public interface IBean extends IState {
 	/** 设置输出 */
 	public void $$$___setOuter(CharWriter outer);
 	
-	@SuppressWarnings("rawtypes")
-	public Class $$$___getFieldType(String field);
-	
-	@SuppressWarnings("rawtypes")
-	public void $$$___addFieldType(String field, Class clazz);
 }

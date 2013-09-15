@@ -3,6 +3,8 @@ package test.org.qmik.datamap.creataStrongClass;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassReader;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
@@ -11,8 +13,7 @@ import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Opcodes;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
-import org.qmik.qmikjson.token.IBean;
-import org.qmik.qmikjson.token.asm.JavaType;
+import org.qmik.qmikjson.util.JavaType;
 
 /**
  * 

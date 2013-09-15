@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.qmik.qmikjson.JSON;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+import org.qmik.qmikjson.StrongBeanFactory;
+
 import test.org.qmik.datamap.creataStrongClass.Account;
 import test.org.qmik.datamap.creataStrongClass.AccountInfo;
 import test.org.qmik.datamap.creataStrongClass.User;

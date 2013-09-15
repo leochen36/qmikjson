@@ -4,7 +4,8 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import org.qmik.qmikjson.token.IBean;
+
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.util.MixUtil;
 
 public abstract class Base2Text {

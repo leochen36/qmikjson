@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.qmik.qmikjson.Config;
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
@@ -14,7 +15,7 @@ import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Opcodes;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
 import org.qmik.qmikjson.out.CharWriter;
-import org.qmik.qmikjson.token.IBean;
+import org.qmik.qmikjson.util.JavaType;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -24,38 +25,37 @@ import org.qmik.qmikjson.util.MixUtil;
  */
 public class StrongBean extends ClassLoader implements Opcodes {
 	//字段
-	public final static String		FIELD_STORE				= "$$$___keys";
-	public final static String		FIELD_TARGET			= "$$$___target";
-	public final static String		FIELD_HASH				= "$$$___hash";
-	public final static String		FIELD_CHASH				= "$$$___chash";
-	public final static String		FIELD_OUTER				= "$$$___outer";
-	public final static String		FIELD_MUL				= "$$$___mul";
-	public final static String		FIELD_FIELDTYPES		= "$$$___fieldTypes";
+	public final static String		FIELD_STORE			= "$$$___keys";
+	public final static String		FIELD_TARGET		= "$$$___target";
+	public final static String		FIELD_HASH			= "$$$___hash";
+	public final static String		FIELD_CHASH			= "$$$___chash";
+	public final static String		FIELD_OUTER			= "$$$___outer";
+	public final static String		FIELD_MUL			= "$$$___mul";
+	public final static String		FIELD_FIELDTYPES	= "$$$___fieldTypes";
 	//方法
-	public final static String		METHOD_SETTARGET		= "$$$___setTarget";
-	public final static String		METHOD_HASH				= "$$$___hash";
-	public final static String		METHOD_SETOUTER		= "$$$___setOuter";
-	public final static String		METHOD_GETOUTER		= "$$$___getOuter";
-	public final static String		METHOD_EXISTOUTER		= "$$$___existOuter";
-	public final static String		METHOD_COMPARE			= "$$$___compare";
-	public final static String		METHOD_ISMULMIX		= "$$$___isMulMix";
-	public final static String		METHOD_GETFIELDTYPE	= "$$$___getFieldType";
-	public final static String		METHOD_ADDFIELDTYPE	= "$$$___addFieldType";
+	public final static String		METHOD_SETTARGET	= "$$$___setTarget";
+	public final static String		METHOD_HASH			= "$$$___hash";
+	public final static String		METHOD_SETOUTER	= "$$$___setOuter";
+	public final static String		METHOD_GETOUTER	= "$$$___getOuter";
+	public final static String		METHOD_EXISTOUTER	= "$$$___existOuter";
+	public final static String		METHOD_COMPARE		= "$$$___compare";
+	public final static String		METHOD_ISMULMIX	= "$$$___isMulMix";
+	public final static String		METHOD_FIELDTYPES	= "$$$___fieldTypes";
 	
 	//
-	public final static String		SERIALVERSIONUID		= "serialVersionUID";
-	public final static String		suffix					= "$StrongBean";
-	public final static Class<?>	STORE						= ArrayList.class;
+	public final static String		SERIALVERSIONUID	= "serialVersionUID";
+	public final static String		suffix				= "$StrongBean";
+	public final static Class<?>	STORE					= ArrayList.class;
 	
 	//
-	public final static String		DESC_OBJECT				= JavaType.getDesc(Object.class);
-	public final static String		DESC_STRING				= JavaType.getDesc(String.class);
-	public final static String		DESC_OUTER				= JavaType.getDesc(CharWriter.class);
-	public final static String		DESC_MAP					= JavaType.getDesc(HashMap.class);
-	public final static String		DESC_CLASS				= JavaType.getDesc(Class.class);
+	public final static String		DESC_OBJECT			= JavaType.getDesc(Object.class);
+	public final static String		DESC_STRING			= JavaType.getDesc(String.class);
+	public final static String		DESC_OUTER			= JavaType.getDesc(CharWriter.class);
+	public final static String		DESC_MAP				= JavaType.getDesc(HashMap.class);
+	public final static String		DESC_CLASS			= JavaType.getDesc(Class.class);
 	//
-	public final static String		INTERNAL_MAP			= getInternalName(HashMap.class);
-	public final static String		INTERNAL_CLASS			= getInternalName(Class.class);
+	public final static String		INTERNAL_MAP		= getInternalName(HashMap.class);
+	public final static String		INTERNAL_CLASS		= getInternalName(Class.class);
 	
 	///
 	public static String getInternalName(Class<?> clazz) {
@@ -148,9 +148,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			
 			makeIBeanExistOuterMethod(cw, subInternalName);
 			
-			makeIBeanGetFieldTypeMethod(cw, subInternalName);
-			makeIBeanAddFieldTypeMethod(cw, subInternalName);
-			
+			makeIBeanFieldTypesMethod(cw, subInternalName);
 			//
 			cw.visitEnd();
 			byte[] code = cw.toByteArray();
@@ -529,6 +527,16 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
+	private static void makeIBeanFieldTypesMethod(ClassWriter cw, String subInternalName) {
+		
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_FIELDTYPES, "()Ljava/util/Map;", null, null);
+		mv.visitCode();
+		mv.visitFieldInsn(GETSTATIC, subInternalName, METHOD_FIELDTYPES, DESC_MAP);
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(1, 1);
+		mv.visitEnd();
+	}
+	
 	/** 创建setTarget方法 */
 	private static void makeIBeanSetTargetMethod(ClassWriter cw, String internalName, Field[] fields, Class<?> owner) {
 		String desc = JavaType.getDesc(owner);
@@ -744,35 +752,4 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	/** 生成方法 $$$___existOuter方法 */
-	private static void makeIBeanGetFieldTypeMethod(ClassWriter cw, String internalName) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_GETFIELDTYPE, "(" + DESC_STRING + ")" + DESC_CLASS, null, null);
-		mv.visitCode();
-		
-	
-		mv.visitFieldInsn(GETSTATIC, internalName, FIELD_FIELDTYPES, DESC_MAP);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_MAP, "get", "(" + DESC_OBJECT + ")" + DESC_OBJECT);
-		mv.visitTypeInsn(CHECKCAST, INTERNAL_CLASS);
-		
-		mv.visitInsn(ARETURN);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
-	}
-	
-	/** 生成方法 $$$___existOuter方法 */
-	private static void makeIBeanAddFieldTypeMethod(ClassWriter cw, String internalName) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_ADDFIELDTYPE, "(" + DESC_STRING + DESC_CLASS + ")V", null, null);
-		mv.visitCode();
-		
-		mv.visitFieldInsn(GETSTATIC, internalName, FIELD_FIELDTYPES, DESC_MAP);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_MAP, "put", "(" + DESC_OBJECT + DESC_OBJECT + ")" + DESC_OBJECT);
-		mv.visitInsn(POP);
-		
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(2, 1);
-		mv.visitEnd();
-	}
 }

@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.qmik.qmikjson.out.Object2Text;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.MixUtil;
 
 public class JSON {

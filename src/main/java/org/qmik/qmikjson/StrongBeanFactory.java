@@ -1,8 +1,11 @@
-package org.qmik.qmikjson.token.asm;
+package org.qmik.qmikjson;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import org.qmik.qmikjson.token.IBean;
+
+import org.qmik.qmikjson.token.asm.NewInstanceException;
+import org.qmik.qmikjson.token.asm.StrongBean;
+import org.qmik.qmikjson.token.asm.StrongBeanClump;
 
 /**
  * 增强bean类
@@ -50,7 +53,7 @@ public class StrongBeanFactory {
 						Field[] fields = superClazz.getDeclaredFields();
 						for (int i = 0; i < fields.length; i++) {
 							bean.$$$___keys().add(fields[i].getName());
-							bean.$$$___addFieldType(fields[i].getName(), fields[i].getType());
+							bean.$$$___fieldTypes().put(fields[i].getName(), fields[i].getType());
 						}
 						clump.add(key, strongClass);
 					}

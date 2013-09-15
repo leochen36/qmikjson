@@ -2,7 +2,7 @@ package test.org.qmik.datamap.toText.data;
 
 import java.util.Date;
 
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+import org.qmik.qmikjson.StrongBeanFactory;
 
 import test.org.qmik.datamap.creataStrongClass.User;
 

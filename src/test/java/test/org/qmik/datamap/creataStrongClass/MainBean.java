@@ -3,10 +3,10 @@ package test.org.qmik.datamap.creataStrongClass;
 import java.util.Date;
 import java.util.Map;
 
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
+import org.qmik.qmikjson.StrongBeanFactory;
 import org.qmik.qmikjson.out.Bean2Text;
-import org.qmik.qmikjson.token.IBean;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import test.org.qmik.datamap.UseCase;
 
 public class MainBean {

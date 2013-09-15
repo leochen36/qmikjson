@@ -1,4 +1,4 @@
-package org.qmik.qmikjson.token;
+package org.qmik.datamap;
 
 import org.qmik.qmikjson.Config;
 

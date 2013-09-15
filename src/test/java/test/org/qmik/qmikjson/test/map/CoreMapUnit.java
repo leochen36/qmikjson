@@ -4,11 +4,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
+import org.qmik.qmikjson.StrongBeanFactory;
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.Data2Text;
-import org.qmik.qmikjson.token.IBean;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.BeanUtil;
 
 import test.org.qmik.datamap.creataStrongClass.User;

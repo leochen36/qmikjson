@@ -2,7 +2,7 @@ package test.org.qmik.datamap.creataStrongClass;
 
 import java.io.Serializable;
 
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+import org.qmik.qmikjson.StrongBeanFactory;
 
 public class Account implements Serializable, Cloneable {
 	private int				id;

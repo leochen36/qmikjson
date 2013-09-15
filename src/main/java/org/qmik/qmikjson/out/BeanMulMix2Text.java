@@ -6,8 +6,8 @@ import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.qmik.qmikjson.token.FIFO;
-import org.qmik.qmikjson.token.IBean;
+import org.qmik.datamap.FIFO;
+import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**

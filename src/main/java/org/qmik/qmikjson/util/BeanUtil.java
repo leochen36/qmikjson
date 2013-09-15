@@ -1,8 +1,9 @@
 package org.qmik.qmikjson.util;
 
 import java.lang.reflect.Method;
-import org.qmik.qmikjson.token.IBean;
-import org.qmik.qmikjson.token.asm.StrongBeanFactory;
+
+import org.qmik.qmikjson.IBean;
+import org.qmik.qmikjson.StrongBeanFactory;
 
 public class BeanUtil {
 	public final static Object[]		NULLS			= new Object[] {};

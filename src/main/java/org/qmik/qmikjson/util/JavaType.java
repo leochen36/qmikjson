@@ -1,4 +1,7 @@
-package org.qmik.qmikjson.token.asm;
+package org.qmik.qmikjson.util;
+
+import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
+
 /**
  * java 字节码指令 对象类型描述
  * @author leo
@@ -18,6 +21,11 @@ public class JavaType {
 		return sb.toString();
 	}
 	
+	/**
+	 * 取得对象的java底层描述,如:int>I,bool>Z,String>Ljava/lang/String;
+	 * @param type
+	 * @return
+	 */
 	public static String getDesc(Class<?> type) {
 		if (type == boolean.class) {
 			return "Z";
@@ -43,7 +51,7 @@ public class JavaType {
 		if (type == double.class) {
 			return "D";
 		}
-		if(type==String[].class){
+		if (type == String[].class) {
 			return "[Ljava/lang/String;";
 		}
 		////////////////////////////
@@ -80,4 +88,12 @@ public class JavaType {
 		return "L" + type.getName().replace(".", "/") + ";";
 	}
 	
+	/**
+	 * 取得class的类路径 ,把包.类转换成 包/类,如果java/lang/Object形式
+	 * @param clazz
+	 * @return
+	 */
+	public static String getInternalName(Class<?> clazz) {
+		return Type.getInternalName(clazz);
+	}
 }
