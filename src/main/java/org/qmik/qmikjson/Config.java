@@ -16,6 +16,9 @@ public class Config {
 	 * }<br/>
 	 */
 	public static int			MAX_LEVEL	= 128;
-	
+	/** fifo队列最大的大小 */
+	public static int			MAX_FIFO		= 128;
 	public static boolean	debug			= false;
+	
+	public static int			mul			= 0;
 }

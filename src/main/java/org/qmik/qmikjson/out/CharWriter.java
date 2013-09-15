@@ -1,32 +1,32 @@
 package org.qmik.qmikjson.out;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /**
  * 
  * @author leo
  *
  */
-public final class CharWriter extends Writer {
+public final class CharWriter {
 	private char[]	buf;
 	private int		size	= 0;
 	
 	public CharWriter(int size) {
-		buf = new char[size];
+		buf = new char[size < 1 ? 128 : size];
 	}
 	
 	public CharWriter() {
 		buf = new char[128];
 	}
 	
-	@Override
-	public void close() throws IOException {
+	public CharWriter(CharWriter writer) {
+		buf = writer.buf;
+		size = writer.size;
+	}
+	
+	public void close() {
 		
 	}
 	
-	@Override
-	public void flush() throws IOException {
+	public void flush() {
 		
 	}
 	
@@ -34,8 +34,7 @@ public final class CharWriter extends Writer {
 		size = 0;
 	}
 	
-	@Override
-	public CharWriter append(char c) throws IOException {
+	public CharWriter append(char c) {
 		if (1 + size >= buf.length) {
 			buf = extendedCapacity(buf);
 		}
@@ -43,21 +42,39 @@ public final class CharWriter extends Writer {
 		return this;
 	}
 	
-	public CharWriter append(char[] cs) throws IOException {
+	public CharWriter append(char... cs) {
 		write(cs);
 		return this;
 	}
 	
-	public CharWriter append(String value) throws IOException {
+	public CharWriter append(String value) {
 		if (value == null) {
 			return this;
 		}
 		return append(value, 0, value.length());
 	}
 	
-	public CharWriter append(String value, int start, int end) throws IOException {
+	public CharWriter replace(char[] value, int start, int end) {
+		char[] cs = new char[size + value.length - (end - start)];
+		System.arraycopy(buf, 0, cs, 0, start);
+		System.arraycopy(value, 0, cs, start, value.length);
+		System.arraycopy(buf, end, cs, start + value.length, size - end);
+		buf = cs;
+		size = buf.length;
+		return this;
+	}
+	
+	public CharWriter replace(CharWriter value, int start, int end) {
+		return replace(value.buf, start, end);
+	}
+	
+	public CharWriter append(String value, int start) {
+		return append(value, start, start + value.length());
+	}
+	
+	public CharWriter append(String value, int start, int end) {
 		if (size + end - start >= buf.length) {
-			buf = extendedCapacity(buf);
+			buf = extendedCapacity(buf, size + end - start);
 		}
 		for (int i = start; i < end; i++) {
 			buf[size++] = value.charAt(i);
@@ -65,7 +82,7 @@ public final class CharWriter extends Writer {
 		return this;
 	}
 	
-	public CharWriter append(CharWriter src) throws IOException {
+	public CharWriter append(CharWriter src) {
 		if (size + src.size >= buf.length) {
 			buf = extendedCapacity(buf, size + src.size);
 		}
@@ -74,13 +91,11 @@ public final class CharWriter extends Writer {
 		return this;
 	}
 	
-	@Override
-	public void write(char[] cs) throws IOException {
+	public void write(char[] cs) {
 		write(cs, 0, cs.length);
 	}
 	
-	@Override
-	public void write(char[] cs, int start, int length) throws IOException {
+	public void write(char[] cs, int start, int length) {
 		if (cs.length + size >= buf.length) {
 			buf = extendedCapacity(buf);
 		}
@@ -106,7 +121,6 @@ public final class CharWriter extends Writer {
 		return buf;
 	}
 	
-	@Override
 	public String toString() {
 		return new String(buf, 0, size);
 	}

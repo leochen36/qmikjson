@@ -1,6 +1,7 @@
 package test.org.qmik.datamap.creataStrongClass;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.out.Bean2Text;
@@ -12,21 +13,23 @@ public class TestMainStrongBean {
 	public static void main(String[] args) {
 		System.out.println(User.class.getClassLoader());
 		
-		/*	IBean userBean = StrongBeanFactory.get(User.class, IBean.class);
-			User user = (User) userBean;*/
+		IBean userBean = StrongBeanFactory.get(User.class);
+		//User userBean = new User();
+		User user = (User) userBean;
 		
-		User user = new User();
+		//User user = new User();
 		user.setId(111);
 		user.setCreateDate(new Date());
 		user.setName("leo");
 		user.setNick("mpp");
 		user.setUid(3434304340L);
-		
+		//user.setFres(new HashMap<String, String>());
+		user.setAccount1(new Account());
 		String json = JSON.toJSONString(user);
-		System.out.println("qmikjson:" + json);
-		System.out.println("fastjson:" + JSON.toJSONString(user));
+		//System.out.println("qmikjson:" + json);
+		System.out.println("qmikjson:" + JSON.toJSONString(user));
 		long l1 = System.currentTimeMillis();
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 50000; i++) {
 			JSON.toJSONString(user);
 			//com.alibaba.fastjson.JSON.toJSONString(user);
 		}
@@ -34,6 +37,7 @@ public class TestMainStrongBean {
 		
 		String ms = "{\"id\":111,\"name\":\"leo\",\"nick\":\"mpp\",\"uid\":3434304340}";
 		JSON.parse(ms);
+		//System.out.println("--" + user);
 	}
 	
 }

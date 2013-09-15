@@ -5,33 +5,28 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.qmik.qmikjson.JSON;
-import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.token.asm.StrongBeanFactory;
-import org.qmik.qmikjson.util.BeanUtil;
-
 import test.org.qmik.datamap.creataStrongClass.Account;
 import test.org.qmik.datamap.creataStrongClass.AccountInfo;
 import test.org.qmik.datamap.creataStrongClass.User;
 
 public class CoreBeanUnit {
 	private static int	maxJson	= 30000;
-	private static int	dealSum	= 30000;
+	private static int	dealSum	= 200000;
 	private static int	arrays	= 30;
 	
 	public static User create() {
 		User user = new User();
 		initBean(user);
-		System.out.println(user);
+		//System.out.println(user);
 		System.out.println("length:" + user.toString().length());
 		return user;
 	}
 	
 	public static User createIBean() {
 		User user = StrongBeanFactory.get(User.class);
-		//User user = new User();
-		
+		//User user = new User();	
 		initBean(user);
 		return user;
 	}
@@ -68,24 +63,25 @@ public class CoreBeanUnit {
 		account.setFee(167.1);
 		account.setId(11);
 		account.setUserId("76");
-		user.setAccount(account);
-		user.setAccount1(account);
 		
-		AccountInfo accountInfo = StrongBeanFactory.get(AccountInfo.class);
+		String s = "";
+		AccountInfo accountInfo = new AccountInfo();
 		accountInfo.setAccountId(11);
 		accountInfo.setId(111);
 		accountInfo.setInfo("asfdasf");
-		account.setAccountInfo(accountInfo);
+		//account.setAccountInfo(accountInfo);
+		user.setAccount(account);
+		user.setAccount1(account);
 		List<Account> array = new ArrayList<Account>();
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
-		array.add(account);
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
+		array.add(account.clone());
 		user.setAccounts(array);
 	}
 	
@@ -93,11 +89,10 @@ public class CoreBeanUnit {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//User user = StrongBeanFactory.get(User.class);
-		User user = create();
+		User user = StrongBeanFactory.get(User.class);
+		//User user = create();
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < 50000; i++) {
-			//user.toString();
 			com.alibaba.fastjson.JSON.toJSONString(user);
 		}
 		
@@ -107,10 +102,11 @@ public class CoreBeanUnit {
 	
 	public static void testQmikJSON(User user) {
 		System.out.println("循环次数:" + dealSum);
-		System.out.println("length:" + user.toString().length());
+		//System.out.println("length:" + user.toString().length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
 			JSON.toJSONString(user);
+			//System.out.println(JSON.toJSONString(user));
 		}
 		long lg = System.currentTimeMillis();
 		System.out.println("耗时:" + (lg - l1) + "ms");
@@ -118,10 +114,11 @@ public class CoreBeanUnit {
 	
 	public static void testFastJSON(User user) {
 		System.out.println("循环次数:" + dealSum);
-		System.out.println("length:" + user.toString().length());
+		System.out.println("length:" + com.alibaba.fastjson.JSON.toJSONString(user).length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
 			com.alibaba.fastjson.JSON.toJSONString(user);
+			//System.out.println(com.alibaba.fastjson.JSON.toJSONString(user));
 		}
 		long lg = System.currentTimeMillis();
 		System.out.println("耗时:" + (lg - l1) + "ms");

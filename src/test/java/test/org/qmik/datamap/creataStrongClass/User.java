@@ -11,6 +11,7 @@ public class User {
 	private Map<String, String>	fres;
 	private int							id;
 	private long						uid;
+	private double						fee;
 	private String						name;
 	private Date						createDate;
 	private String						nick;
@@ -40,6 +41,14 @@ public class User {
 	
 	public void setAccounts(List<Account> accounts) {
 		this.accounts = accounts;
+	}
+	
+	public double getFee() {
+		return fee;
+	}
+	
+	public void setFee(double fee) {
+		this.fee = fee;
 	}
 	
 	public Account getAccount1() {

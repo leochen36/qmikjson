@@ -1,8 +1,8 @@
 package org.qmik.qmikjson.out;
 
-import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.Map;
 import org.qmik.qmikjson.token.IBean;
 import org.qmik.qmikjson.token.LIFO;
 import org.qmik.qmikjson.token.asm.StrongBean;
-import org.qmik.qmikjson.util.BeanUtil;
+import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -22,9 +22,14 @@ import org.qmik.qmikjson.util.MixUtil;
  *
  */
 public class Bean2Text extends Base2Text {
-	public final static String								ROOT_NAME		= "1ROOT";
-	private final static Map<Class<?>, List<Node>>	sg_allFields	= new HashMap<Class<?>, List<Node>>(1024);
-	private static Bean2Text								instance			= new Bean2Text();
+	/** 根节点名 */
+	public final static String													ROOT_NAME		= "1ROOT";
+	/** 存储javabean的树型字段(包含子,孙子,孙孙子...javabean的字段) */
+	private final static Map<Class<?>, List<Node>>						sg_allFields	= new HashMap<Class<?>, List<Node>>(1024);
+	/** 缓存 */
+	private static Map<DateFormat, Reference<Map<Object, IBean>>>	caches			= new HashMap<DateFormat, Reference<Map<Object, IBean>>>();
+	//单例
+	private static Bean2Text													instance			= new Bean2Text();
 	
 	private Bean2Text() {
 	}
@@ -43,14 +48,89 @@ public class Bean2Text extends Base2Text {
 	 * @return
 	 */
 	public String toJSONString(Object bean, DateFormat df) {
+		if (bean == null) {
+			return null;
+		}
+		IBean ib = getIBean(bean, df);
+		//是否包含复合对象
+		if (ib.$$$___isMulMix()) {
+			return BeanMulMix2Text.getInstance().toJSONString(ib, df);
+		}
+		//是否相等
+		if (ib.$$$___compare()) {
+			if (ib.$$$___existOuter()) {
+				return ib.$$$___getOuter().toString();
+			}
+		}
 		CharWriter writer = new CharWriter(getSize(bean));
-		toStringWriter(writer, bean, df);
-		return writer.toString();
+		writer(writer, bean, df);
+		ib.$$$___setOuter(writer);
+		setIBean(bean, df, ib);
+		return ib.$$$___getOuter().toString();
 	}
 	
 	//把内容输入writer中
 	@Override
-	protected void toStringWriter(CharWriter writer, Object bean, DateFormat df) {
+	protected void appendWriter(CharWriter writer, Object bean, DateFormat df) {
+		IBean ib = getIBean(bean, df);
+		//是否包含复合对象
+		if (ib.$$$___isMulMix()) {
+			BeanMulMix2Text.getInstance().appendWriter(writer, ib, df);
+			return;
+		}
+		//是否相等
+		if (ib.$$$___compare()) {
+			if (ib.$$$___existOuter()) {
+				writer.append(ib.$$$___getOuter());
+				return;
+			}
+		}
+		CharWriter cw = new CharWriter(getSize(bean));
+		writer(cw, bean, df);
+		ib.$$$___setOuter(cw);
+		setIBean(bean, df, ib);
+		writer.append(cw);
+	}
+	
+	private Map<Object, IBean> getCache(Object bean, DateFormat df) {
+		Reference<Map<Object, IBean>> ref = caches.get(df);
+		if (ref == null) {
+			ref = new SoftReference<Map<Object, IBean>>(new HashMap<Object, IBean>());
+			caches.put(df, ref);
+		}
+		Map<Object, IBean> map = ref.get();
+		if (map == null) {
+			map = new HashMap<Object, IBean>();
+			ref = new SoftReference<Map<Object, IBean>>(map);
+			caches.put(df, ref);
+		}
+		return map;
+	}
+	
+	/** 取得 bean的IBean对象 */
+	protected IBean getIBean(Object bean, DateFormat df) {
+		if (bean instanceof IBean) {
+			return (IBean) bean;
+		}
+		IBean ib = null;
+		Map<Object, IBean> map = getCache(bean, df);
+		ib = map.get(bean);
+		if (ib == null) {
+			ib = StrongBeanFactory.get(bean.getClass(), bean);
+		}
+		return ib;
+	}
+	
+	protected void setIBean(Object bean, DateFormat df, IBean ib) {
+		try {
+			if (!(bean instanceof IBean)) {
+				getCache(bean, df).put(bean, ib);
+			}
+		} catch (Exception e) {
+		}
+	}
+	
+	private void writer(CharWriter writer, Object bean, DateFormat df) {
 		try {
 			List<Node> nodes = getNodes(bean.getClass());
 			LIFO<String> queueFields = new LIFO<String>();//队列父节点字段
@@ -63,17 +143,22 @@ public class Bean2Text extends Base2Text {
 			boolean gtOne = false;
 			Node node;
 			Object parent = null;
-			String parentName;
+			String parentName = null;
 			writer.append('{');
 			//循环字段,取值
 			for (int i = 0; i < nodes.size(); i++) {
 				node = nodes.get(i);
 				parent = queueParents.peek();
 				parentName = queueFields.peek();
+				if (i == nodes.size() - 1 && parent == null) {
+					queueParents.pop();
+					queueFields.pop();
+					continue;
+				}
 				if (parentName != node.parent) {
 					queueParents.pop();
 					queueFields.pop();
-					if (parentName != ROOT_NAME && parent != null) {
+					if (parent != null) {
 						writer.append('}');
 					}
 					gtOne = true;
@@ -88,7 +173,7 @@ public class Bean2Text extends Base2Text {
 						continue;
 					}
 					try {
-						value = getFieldValue(node.field, parent);
+						value = getFieldValue(node.field, parent, df);
 					} catch (Exception e) {
 						continue;
 					}
@@ -98,12 +183,12 @@ public class Bean2Text extends Base2Text {
 					if (gtOne) {
 						writer.append(',');
 					}
-					append(writer, parentName, node.field, value, df);
+					appendValue(writer, parentName, node.field, value, df);
 					gtOne = true;
 				} else {//不是叶子节点
 					try {
 						if (parent != null) {
-							parent = getFieldValue(node.field, parent);
+							parent = getFieldValue(node.field, parent, df);
 						}
 					} catch (Exception e) {
 						parent = null;
@@ -130,11 +215,11 @@ public class Bean2Text extends Base2Text {
 	}
 	
 	/**
-	 * 创建javabean 所有字段节点,包括包含的子javabean对象
-	 * @param clazz
-	 * @param parent
-	 * @param nodes
-	 */
+	* 创建javabean 所有字段节点,包括包含的子javabean对象
+	* @param clazz
+	* @param parent
+	* @param nodes
+	*/
 	private void createFieldNodes(Class<?> clazz, String parent, List<Node> nodes) {
 		Field[] fields = clazz.getDeclaredFields();
 		String name;
@@ -142,7 +227,7 @@ public class Bean2Text extends Base2Text {
 		for (Field field : fields) {
 			try {
 				name = field.getName();
-				if (name == StrongBean.STORE_FIELD) {
+				if (name == StrongBean.FIELD_STORE) {
 					continue;
 				}
 				if (name == StrongBean.SERIALVERSIONUID) {
@@ -163,21 +248,8 @@ public class Bean2Text extends Base2Text {
 		}
 	}
 	
-	private static Map<String, Method>	methodNames	= new HashMap<String, Method>(1024);
-	
-	private Object getFieldValue(String field, Object bean) throws Exception {
-		if (bean instanceof IBean) {
-			return ((IBean) bean).$$$___getValue(field);
-		}
-		Class<?> clazz = bean.getClass();
-		String uni = clazz.getName() + "." + field;
-		Method method = methodNames.get(uni);
-		if (method == null) {
-			String methodName = "get" + MixUtil.indexUpper(field, 0);
-			method = clazz.getDeclaredMethod(methodName, BeanUtil.NULLS_CLASS);
-			methodNames.put(uni, method);
-		}
-		return BeanUtil.invoke(bean, method);
+	private Object getFieldValue(String field, Object bean, DateFormat df) throws Exception {
+		return getIBean(bean, df).$$$___getValue(field);
 	}
 	
 	protected List<Node> getNodes(Class<?> clazz) {
@@ -188,42 +260,5 @@ public class Bean2Text extends Base2Text {
 			sg_allFields.put(clazz, nodes);
 		}
 		return nodes;
-	}
-	
-	protected void append(CharWriter writer, Object parent, String name, Object value, DateFormat df) throws IOException {
-		if (parent == value) {
-			return;
-		}
-		if (value instanceof String) {
-			writer.append('"').append(name).append("\":\"").append((String) value).append("\"");
-		} else if (value instanceof Map) {
-			writer.append('"').append(name).append("\":");
-			CharWriter cw = getCaches(value);
-			if (cw == null) {
-				cw = new CharWriter();
-				Data2Text.getInstance().toStringWriter(cw, value, df);
-				setChaches(value, cw);
-			}
-			writer.append(cw);
-			//Data2Text.getInstance().toStringWriter(writer, value, df);
-		} else if (value instanceof Collection) {
-			writer.append('"').append(name).append("\":");
-			CharWriter cw = getCaches(value);
-			if (cw == null) {
-				cw = new CharWriter();
-				Array2Text.getInstance().toStringWriter(cw, value, df);
-				setChaches(value, cw);
-			}
-			writer.append(cw);
-			//Array2Text.getInstance().toStringWriter(writer, value, df);
-		} else if (MixUtil.isPrimitive(value.getClass())) {
-			writer.append('"').append(name).append("\":").append(value.toString());
-		} else if (value instanceof Date) {
-			if (df == null) {
-				writer.append('"').append(name).append("\":").append(((Date) value).getTime() + "");
-			} else {
-				writer.append('"').append(name).append("\":\"").append(df.format(value)).append("\"");
-			}
-		}
 	}
 }

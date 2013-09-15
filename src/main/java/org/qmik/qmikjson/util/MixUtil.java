@@ -18,6 +18,9 @@ public class MixUtil {
 			if (value instanceof Date) {
 				return (Date) value;
 			}
+			if (value instanceof Long) {
+				return new Date((Long) value);
+			}
 			return sdf.parse(value.toString());
 		} catch (Exception e) {
 			return _default;
@@ -126,12 +129,22 @@ public class MixUtil {
 				|| type == Byte.class || type == Float.class;
 	}
 	
+	/** 是否是单元类型,像基本类型,时间类型,字符串类型都认为是 */
+	public static boolean isUnitType(Class<?> type) {
+		return isPrimitive(type) || CharSequence.class.isAssignableFrom(type) || Date.class.isAssignableFrom(type);
+	}
+	
 	public static String getRunPath() {
 		return Thread.currentThread().getContextClassLoader().getResource("").getFile();
 	}
+	
+	public static int getTimeM() {
+		return (int) (System.currentTimeMillis() / 6000);
+	}
+	
 	public static void main(String[] args) {
 		long l1 = System.currentTimeMillis();
-		Object o=3;
+		Object o = 3;
 		for (int i = 0; i < 100000000; i++) {
 			isPrimitive(o.getClass());
 		}

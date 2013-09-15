@@ -1,8 +1,13 @@
 package org.qmik.qmikjson.token;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.qmik.datamap.Array;
+import org.qmik.datamap.Data;
 import org.qmik.qmikjson.JSONException;
+import org.qmik.qmikjson.token.asm.StrongBeanFactory;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -26,12 +31,33 @@ public abstract class Token {
 																								};
 																							};
 	
-	protected abstract Object createDataNode(Class<?> clazz);
+	@SuppressWarnings("rawtypes")
+	protected Object createRootDataNode(Class<?> clazz) {
+		if (clazz == null || Map.class.isAssignableFrom(clazz)) {
+			return new Data();
+		} else {
+			return StrongBeanFactory.get(clazz);
+		}
+	}
 	
-	protected abstract void add(Object node, String key, Object value);
+	protected abstract Object createDataNode(Class<?> root, Object parent, String field);
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void add(Object node, String key, Object value) {
+		if (node instanceof IBean) {
+			IBean ib = (IBean) node;
+			Class<?> clazz = ib.$$$___getFieldType(key);
+			if (clazz == Date.class) {
+				value = MixUtil.toDate(value);
+			}
+			ib.$$$___setValue(key, value);
+		} else if (node instanceof Map) {
+			((Map) node).put(key, value);
+		}
+	}
 	
 	@SuppressWarnings("rawtypes")
-	private List createArrayNode() {
+	protected List createArrayNode() {
 		return new Array();
 	}
 	
@@ -62,7 +88,8 @@ public abstract class Token {
 		queueKeys.clear();
 		queueParents.clear();
 		///
-		Object root = null;//根节点
+		Object root = createRootDataNode(clazz);//根节点
+		queueParents.add(root);
 		Object parentNode = null;
 		Object nNode = null;
 		
@@ -166,16 +193,11 @@ public abstract class Token {
 					}
 					break;
 				case '{':
-					parentNode = queueParents.peek();
-					if (parentNode == null) {
-						root = createDataNode(clazz);
-						queueParents.add(root);
-						continue;
-					}
 					if (isSelecting(flag)) {
 						continue;
 					}
-					nNode = createDataNode(clazz);
+					parentNode = queueParents.peek();
+					nNode = createDataNode(clazz, parentNode, queueKeys.peek());
 					if (isList(parentNode)) {
 						add((List) parentNode, nNode);
 					} else {
