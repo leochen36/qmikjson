@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import org.qmik.qmikjson.IBean;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.util.MixUtil;
 
 public abstract class Base2Text {
@@ -18,8 +18,8 @@ public abstract class Base2Text {
 	
 	@SuppressWarnings("rawtypes")
 	protected int getSize(Object value) {
-		if (value instanceof IBean) {
-			IBean ib = (IBean) value;
+		if (value instanceof IStrongBean) {
+			IStrongBean ib = (IStrongBean) value;
 			if (ib.$$$___isMulMix()) {//包含复合对象,扩大容量
 				return ib.$$$___keys().size() * (baseNumber << 2);
 			}

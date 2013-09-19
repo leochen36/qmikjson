@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassReader;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
@@ -13,6 +12,7 @@ import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
 import org.qmik.qmikjson.asm.org.objectweb.asm.MethodVisitor;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Opcodes;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Type;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.util.JavaType;
 
 /**
@@ -74,7 +74,7 @@ public class StrongBean1 extends ClassLoader implements Opcodes {
 			}
 			for (Class<?> clazz : superInterfaces) {
 				methods = clazz.getDeclaredMethods();
-				if (clazz == IBean.class) {
+				if (clazz == IStrongBean.class) {
 					for (Method method : methods) {
 						if (method.getName().equals("__setValue")) {
 							makeIBeanSetMethod(method, cw, method.getName(), className, fields);

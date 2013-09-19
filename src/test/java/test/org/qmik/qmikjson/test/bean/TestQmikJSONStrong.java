@@ -12,8 +12,10 @@ public class TestQmikJSONStrong {
 	public static void main(String[] args) {
 		System.out.println("test qmikjson strong");
 		User user = CoreBeanUnit.createIBean();
+		
 		CoreBeanUnit.testQmikJSON(user);
 		System.out.println(JSON.toJSONString(user));
+		System.out.println(JSON.toJSONStringWithDateFormat(user, "yyyy-MM-dd hh:mm:ss"));
 	}
 	
 }

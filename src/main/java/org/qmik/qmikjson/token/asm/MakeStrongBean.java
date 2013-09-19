@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.qmik.qmikjson.Config;
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
@@ -21,39 +20,46 @@ import org.qmik.qmikjson.util.MixUtil;
  * @author leo
  *
  */
-public class StrongBean extends ClassLoader implements Opcodes {
+public class MakeStrongBean extends ClassLoader implements Opcodes {
 	//字段
-	public final static String		FIELD_STORE			= "$$$___keys";
-	public final static String		FIELD_TARGET		= "$$$___target";
-	public final static String		FIELD_HASH			= "$$$___hash";
-	public final static String		FIELD_CHASH			= "$$$___chash";
-	public final static String		FIELD_OUTER			= "$$$___outer";
-	public final static String		FIELD_MUL			= "$$$___mul";
-	public final static String		FIELD_FIELDTYPES	= "$$$___fieldTypes";
+	public final static String		FIELD_STORE				= "$$$___keys";
+	public final static String		FIELD_TARGET			= "$$$___target";
+	public final static String		FIELD_HASH				= "$$$___hash";
+	public final static String		FIELD_CHASH				= "$$$___chash";
+	public final static String		FIELD_MUL				= "$$$___mul";
+	public final static String		FIELD_FIELDTYPES		= "$$$___fieldTypes";
+	public final static String		FIELD_OUTER1			= "$$$___outer1";
+	public final static String		FIELD_OUTER2			= "$$$___outer2";
+	
 	//方法
-	public final static String		METHOD_SETTARGET	= "$$$___setTarget";
-	public final static String		METHOD_HASH			= "$$$___hash";
-	public final static String		METHOD_SETOUTER	= "$$$___setOuter";
-	public final static String		METHOD_GETOUTER	= "$$$___getOuter";
-	public final static String		METHOD_EXISTOUTER	= "$$$___existOuter";
-	public final static String		METHOD_COMPARE		= "$$$___compare";
-	public final static String		METHOD_ISMULMIX	= "$$$___isMulMix";
-	public final static String		METHOD_FIELDTYPES	= "$$$___fieldTypes";
+	public final static String		METHOD_SET				= "$$$___setValue";
+	public final static String		METHOD_GET				= "$$$___getValue";
+	
+	public final static String		METHOD_SETTARGET		= "$$$___setTarget";
+	public final static String		METHOD_HASH				= "$$$___hash";
+	public final static String		METHOD_COMPARE			= "$$$___compare";
+	public final static String		METHOD_ISMULMIX		= "$$$___isMulMix";
+	public final static String		METHOD_FIELDTYPES		= "$$$___fieldTypes";
+	public final static String		METHOD_GETOUTER1		= "$$$___getOuter1";
+	public final static String		METHOD_GETOUTER2		= "$$$___getOuter2";
+	public final static String		METHOD_SETOUTER1		= "$$$___setOuter1";
+	public final static String		METHOD_SETOUTER2		= "$$$___setOuter2";
+	public final static String		METHOD_EXISTOUTER1	= "$$$___existOuter1";
+	public final static String		METHOD_EXISTOUTER2	= "$$$___existOuter2";
+	//
+	public final static String		SERIALVERSIONUID		= "serialVersionUID";
+	public final static String		suffix					= "$StrongBean";
+	public final static Class<?>	STORE						= ArrayList.class;
 	
 	//
-	public final static String		SERIALVERSIONUID	= "serialVersionUID";
-	public final static String		suffix				= "$StrongBean";
-	public final static Class<?>	STORE					= ArrayList.class;
-	
+	public final static String		DESC_OBJECT				= JavaType.getDesc(Object.class);
+	public final static String		DESC_STRING				= JavaType.getDesc(String.class);
+	public final static String		DESC_OUTER				= JavaType.getDesc(CharWriter.class);
+	public final static String		DESC_MAP					= JavaType.getDesc(HashMap.class);
+	public final static String		DESC_CLASS				= JavaType.getDesc(Class.class);
 	//
-	public final static String		DESC_OBJECT			= JavaType.getDesc(Object.class);
-	public final static String		DESC_STRING			= JavaType.getDesc(String.class);
-	public final static String		DESC_OUTER			= JavaType.getDesc(CharWriter.class);
-	public final static String		DESC_MAP				= JavaType.getDesc(HashMap.class);
-	public final static String		DESC_CLASS			= JavaType.getDesc(Class.class);
-	//
-	public final static String		INTERNAL_MAP		= getInternalName(HashMap.class);
-	public final static String		INTERNAL_CLASS		= getInternalName(Class.class);
+	public final static String		INTERNAL_MAP			= getInternalName(HashMap.class);
+	public final static String		INTERNAL_CLASS			= getInternalName(Class.class);
 	
 	///
 	public static String getInternalName(Class<?> clazz) {
@@ -63,7 +69,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	
 	public Class<?> makeClass(Class<?> superClazz, Class<?>... superInterfaces) {
 		try {
-			if (superClazz == IBean.class) {
+			if (superClazz == IStrongBean.class) {
 				return superClazz;
 			}
 			String superInternalName = getInternalName(superClazz);
@@ -94,7 +100,9 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			//创建hash
 			cw.visitField(ACC_PUBLIC, FIELD_HASH, "I", null, null).visitEnd();
 			//创建outer
-			cw.visitField(ACC_PUBLIC, FIELD_OUTER, DESC_OUTER, null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC, FIELD_OUTER1, JavaType.getDesc(HashMap.class), null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC, FIELD_OUTER2, JavaType.getDesc(HashMap.class), null, null).visitEnd();
+			
 			//创建outer
 			cw.visitField(ACC_PUBLIC, FIELD_CHASH, "I", null, null).visitEnd();
 			//创建次数
@@ -113,7 +121,7 @@ public class StrongBean extends ClassLoader implements Opcodes {
 				}
 			}
 			
-			for (Class<?> clazz : superInterfaces) {
+			/*for (Class<?> clazz : superInterfaces) {
 				methods = clazz.getDeclaredMethods();
 				if (clazz == IBean.class) {
 					for (Method method : methods) {
@@ -124,7 +132,10 @@ public class StrongBean extends ClassLoader implements Opcodes {
 						}
 					}
 				}
-			}
+			}*/
+			makeIBeanSetMethod(cw, subInternalName, fields, superClazz);
+			makeIBeanGetMethod(cw, subInternalName, fields, superClazz);
+			
 			//创建toString方法
 			makeToStringMethod(cw);
 			//创建 static{}
@@ -135,18 +146,20 @@ public class StrongBean extends ClassLoader implements Opcodes {
 			makeIBeanSetTargetMethod(cw, subInternalName, fields, superClazz);
 			//创建 METHOD_HASH方法
 			makeGetMethod(cw, subInternalName, METHOD_HASH, FIELD_HASH, "I");
-			//生成setOuter方法
-			makeIBeanSetOuterMethod(cw, subInternalName);
-			
-			makeIBeanGetOuterMethod(cw, subInternalName);
-			
 			makeIBeanCompareMethod(cw, subInternalName, superInternalName, fields, superClazz);
 			
 			makeIBeanMulMixMethod(cw, subInternalName, superInternalName, fields, superClazz);
 			
-			makeIBeanExistOuterMethod(cw, subInternalName);
-			
 			makeIBeanFieldTypesMethod(cw, subInternalName);
+			
+			makeIBeanGetOuter1Method(cw, subInternalName, METHOD_GETOUTER1, FIELD_OUTER1);
+			makeIBeanGetOuter1Method(cw, subInternalName, METHOD_GETOUTER2, FIELD_OUTER2);
+			makeIBeanSetOuter1Method(cw, subInternalName, METHOD_SETOUTER1, FIELD_OUTER1);
+			makeIBeanSetOuter1Method(cw, subInternalName, METHOD_SETOUTER2, FIELD_OUTER2);
+			
+			makeIBeanExistOuter1Method(cw, subInternalName, METHOD_EXISTOUTER1, FIELD_OUTER1);
+			makeIBeanExistOuter1Method(cw, subInternalName, METHOD_EXISTOUTER2, FIELD_OUTER2);
+			
 			//
 			cw.visitEnd();
 			byte[] code = cw.toByteArray();
@@ -230,8 +243,8 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param className
 	 * @param fields
 	 */
-	public static void makeIBeanSetMethod(Method method, ClassWriter cw, String methodName, String internalName, Field[] fields, Class<?> owner) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
+	public static void makeIBeanSetMethod(ClassWriter cw, String internalName, Field[] fields, Class<?> owner) {
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_SET, "(" + DESC_STRING + DESC_OBJECT + ")V", null, null);
 		mv.visitCode();
 		String name, desc, type;
 		Label label;
@@ -299,8 +312,8 @@ public class StrongBean extends ClassLoader implements Opcodes {
 	 * @param className
 	 * @param fields
 	 */
-	public static void makeIBeanGetMethod(Method method, ClassWriter cw, String methodName, String internalName, Field[] fields, Class<?> owner) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, JavaType.getMethodDesc(method.getParameterTypes(), method.getReturnType()), null, null);
+	public static void makeIBeanGetMethod(ClassWriter cw, String internalName, Field[] fields, Class<?> owner) {
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_GET, "(" + DESC_STRING + ")" + DESC_OBJECT, null, null);
 		mv.visitCode();
 		String name, desc;
 		Label label;
@@ -563,9 +576,12 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	/** 创建hash方法 */
-	private static void makeIBeanSetOuterMethod(ClassWriter cw, String internalName) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_SETOUTER, "(" + DESC_OUTER + ")V", null, null);
+	private static void makeIBeanSetOuter1Method(ClassWriter cw, String internalName, String methodName, String fieldName) {
+		String descCW = JavaType.getDesc(CharWriter.class);
+		String internalOuter = getInternalName(HashMap.class);
+		String descOuter = JavaType.getDesc(HashMap.class);
+		
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, "(" + DESC_OBJECT + descCW + ")V", null, null);
 		mv.visitCode();
 		//
 		mv.visitVarInsn(ALOAD, 0);
@@ -574,11 +590,26 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitFieldInsn(PUTFIELD, internalName, FIELD_CHASH, "I");
 		//
 		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, descOuter);
+		//
+		Label lab1 = new Label();
+		mv.visitJumpInsn(IFNONNULL, lab1);
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitTypeInsn(NEW, internalOuter);
+		mv.visitInsn(DUP);
+		mv.visitMethodInsn(INVOKESPECIAL, internalOuter, "<init>", "()V");
+		mv.visitFieldInsn(PUTFIELD, internalName, fieldName, descOuter);
+		mv.visitLabel(lab1);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		//
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, descOuter);
 		mv.visitVarInsn(ALOAD, 1);
-		mv.visitFieldInsn(PUTFIELD, internalName, FIELD_OUTER, DESC_OUTER);
-		
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, internalOuter, "put", "(" + DESC_OBJECT + DESC_OBJECT + ")" + DESC_OBJECT);
+		mv.visitInsn(POP);
 		mv.visitInsn(RETURN);
-		mv.visitMaxs(2, 1);
+		mv.visitMaxs(3, 1);
 		mv.visitEnd();
 	}
 	
@@ -657,21 +688,50 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	private static void makeIBeanGetOuterMethod(ClassWriter cw, String internalName) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_GETOUTER, "()" + DESC_OUTER, null, null);
+	private static void makeIBeanGetOuter1Method(ClassWriter cw, String internalName, String methodName, String fieldName) {
+		String internalCW = getInternalName(CharWriter.class);
+		String descCW = JavaType.getDesc(CharWriter.class);
+		String internalOuter = getInternalName(HashMap.class);
+		String descOuter = JavaType.getDesc(HashMap.class);
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, "(" + DESC_OBJECT + ")" + JavaType.getDesc(CharWriter.class), null, null);
 		mv.visitCode();
 		
-		String newClass = Type.getInternalName(CharWriter.class);
 		//创建无参构造函数
-		mv.visitTypeInsn(NEW, newClass);
-		mv.visitInsn(DUP);
+		//
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, internalName, FIELD_OUTER, DESC_OUTER);
-		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "(" + DESC_OUTER + ")V");
-		mv.visitVarInsn(ASTORE, 1);
-		mv.visitVarInsn(ALOAD, 1);
+		mv.visitFieldInsn(GETFIELD, internalName, FIELD_OUTER1, descOuter);
+		Label lab1 = new Label();
+		mv.visitJumpInsn(IFNONNULL, lab1);
+		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(ARETURN);
-		mv.visitMaxs(1, 1);
+		mv.visitLabel(lab1);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		//
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, descOuter);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, internalOuter, "get", "(" + DESC_OBJECT + ")" + DESC_OBJECT);
+		mv.visitTypeInsn(CHECKCAST, internalCW);
+		mv.visitVarInsn(ASTORE, 2);
+		mv.visitVarInsn(ALOAD, 2);
+		Label lab2 = new Label();
+		mv.visitJumpInsn(IFNONNULL, lab2);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitInsn(ARETURN);
+		mv.visitLabel(lab2);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		//
+		mv.visitTypeInsn(NEW, internalCW);
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitMethodInsn(INVOKESPECIAL, internalCW, "<init>", "(" + descCW + ")V");
+		mv.visitVarInsn(ASTORE, 3);
+		mv.visitVarInsn(ALOAD, 3);
+		
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(3, 1);
 		mv.visitEnd();
 	}
 	
@@ -728,23 +788,27 @@ public class StrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	/** 生成方法 $$$___existOuter方法 */
-	private static void makeIBeanExistOuterMethod(ClassWriter cw, String internalName) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_EXISTOUTER, "()Z", null, null);
+	private static void makeIBeanExistOuter1Method(ClassWriter cw, String internalName, String methodName, String fieldName) {
+		String internalOuter = getInternalName(HashMap.class);
+		String descOuter = JavaType.getDesc(HashMap.class);
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, "(" + DESC_OBJECT + ")Z", null, null);
 		mv.visitCode();
+		
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitFieldInsn(GETFIELD, internalName, FIELD_OUTER, DESC_OUTER);
-		Label label = new Label();
-		mv.visitJumpInsn(IFNONNULL, label);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, descOuter);
+		Label lab1 = new Label();
+		mv.visitJumpInsn(IFNONNULL, lab1);
 		mv.visitLdcInsn(false);
 		mv.visitInsn(IRETURN);
-		mv.visitLabel(label);
+		mv.visitLabel(lab1);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
-		
-		mv.visitLdcInsn(true);
+		//
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, internalName, fieldName, descOuter);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, internalOuter, "containsKey", "(" + DESC_OBJECT + ")Z");
 		mv.visitInsn(IRETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
 	}
-	
 }

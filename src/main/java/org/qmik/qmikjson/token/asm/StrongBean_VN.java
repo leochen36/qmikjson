@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.asm.org.objectweb.asm.ClassWriter;
 import org.qmik.qmikjson.asm.org.objectweb.asm.Label;
@@ -44,7 +43,7 @@ public class StrongBean_VN extends ClassLoader implements Opcodes {
 	
 	public Class<?> makeClass(Class<?> superClazz, Class<?>... superInterfaces) {
 		try {
-			if (superClazz == IBean.class) {
+			if (superClazz == IStrongBean.class) {
 				return superClazz;
 			}
 			String superInternalName = getInternalName(superClazz);
@@ -93,7 +92,7 @@ public class StrongBean_VN extends ClassLoader implements Opcodes {
 			
 			for (Class<?> clazz : superInterfaces) {
 				methods = clazz.getDeclaredMethods();
-				if (clazz == IBean.class) {
+				if (clazz == IStrongBean.class) {
 					for (Method method : methods) {
 						if (method.getName().equals("$$$___setValue")) {
 							makeIBeanSetMethod(method, cw, method.getName(), subInternalName, fields, superClazz);

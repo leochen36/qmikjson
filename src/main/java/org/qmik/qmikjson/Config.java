@@ -21,5 +21,5 @@ public class Config {
 	/** 调整模式 */
 	public static boolean	debug			= false;
 	/** 调整输出字符串超过 mul 次,走缓存 */
-	public static int			mul			= 3;
+	public static int			mul			= 5;
 }

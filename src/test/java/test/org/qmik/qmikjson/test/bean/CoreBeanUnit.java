@@ -14,7 +14,7 @@ import test.org.qmik.datamap.creataStrongClass.User;
 
 public class CoreBeanUnit {
 	private static int	maxJson	= 30000;
-	private static int	dealSum	= 200000;
+	private static int	dealSum	= 50000;
 	private static int	arrays	= 30;
 	
 	public static User create() {
@@ -106,7 +106,10 @@ public class CoreBeanUnit {
 		//System.out.println("length:" + user.toString().length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
-			JSON.toJSONString(user);
+			//user.getAccount().setId(i );
+			user.setId(i);
+			//JSON.toJSONString(user);
+			JSON.toJSONStringWithDateFormat(user, "yyyy-MM-dd hh:mm:ss");
 			//System.out.println(JSON.toJSONString(user));
 		}
 		long lg = System.currentTimeMillis();
@@ -118,6 +121,7 @@ public class CoreBeanUnit {
 		System.out.println("length:" + com.alibaba.fastjson.JSON.toJSONString(user).length());
 		long l1 = System.currentTimeMillis();
 		for (int i = 0; i < dealSum; i++) {
+			user.setId(i);
 			com.alibaba.fastjson.JSON.toJSONString(user);
 			//System.out.println(com.alibaba.fastjson.JSON.toJSONString(user));
 		}

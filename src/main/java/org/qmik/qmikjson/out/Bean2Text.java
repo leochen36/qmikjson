@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.qmik.datamap.LIFO;
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.StrongBeanFactory;
-import org.qmik.qmikjson.token.asm.StrongBean;
+import org.qmik.qmikjson.token.asm.IStrongBean;
+import org.qmik.qmikjson.token.asm.MakeStrongBean;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -24,13 +24,13 @@ import org.qmik.qmikjson.util.MixUtil;
  */
 public class Bean2Text extends Base2Text {
 	/** 根节点名 */
-	public final static String													ROOT_NAME		= "1ROOT";
+	public final static String									ROOT_NAME		= "1ROOT";
 	/** 存储javabean的树型字段(包含子,孙子,孙孙子...javabean的字段) */
-	private final static Map<Class<?>, List<Node>>						sg_allFields	= new HashMap<Class<?>, List<Node>>(1024);
+	private final static Map<Class<?>, List<Node>>		sg_allFields	= new HashMap<Class<?>, List<Node>>(1024);
 	/** 缓存 */
-	private static Map<DateFormat, Reference<Map<Object, IBean>>>	caches			= new HashMap<DateFormat, Reference<Map<Object, IBean>>>();
+	private static Reference<Map<Object, IStrongBean>>	caches			= new SoftReference<Map<Object, IStrongBean>>(new HashMap<Object, IStrongBean>());
 	//单例
-	private static Bean2Text													instance			= new Bean2Text();
+	private static Bean2Text									instance			= new Bean2Text();
 	
 	private Bean2Text() {
 	}
@@ -52,28 +52,27 @@ public class Bean2Text extends Base2Text {
 		if (bean == null) {
 			return null;
 		}
-		IBean ib = getIBean(bean, df);
+		IStrongBean ib = getIBean(bean, df);
 		//是否包含复合对象
 		if (ib.$$$___isMulMix()) {
 			return BeanMulMix2Text.getInstance().toJSONString(ib, df);
 		}
 		//是否相等
 		if (ib.$$$___compare()) {
-			if (ib.$$$___existOuter()) {
-				return ib.$$$___getOuter().toString();
+			if (ib.$$$___existOuter1(df)) {
+				return ib.$$$___getOuter1(df).toString();
 			}
 		}
 		CharWriter writer = new CharWriter(getSize(bean));
 		writer(writer, bean, df);
-		ib.$$$___setOuter(writer);
-		setIBean(bean, df, ib);
-		return ib.$$$___getOuter().toString();
+		ib.$$$___setOuter1(df, writer);
+		return ib.$$$___getOuter1(df).toString();
 	}
 	
 	//把内容输入writer中
 	@Override
 	protected void appendWriter(CharWriter writer, Object bean, DateFormat df) {
-		IBean ib = getIBean(bean, df);
+		IStrongBean ib = getIBean(bean, df);
 		//是否包含复合对象
 		if (ib.$$$___isMulMix()) {
 			BeanMulMix2Text.getInstance().appendWriter(writer, ib, df);
@@ -81,54 +80,39 @@ public class Bean2Text extends Base2Text {
 		}
 		//是否相等
 		if (ib.$$$___compare()) {
-			if (ib.$$$___existOuter()) {
-				writer.append(ib.$$$___getOuter());
+			if (ib.$$$___existOuter1(df)) {
+				writer.append(ib.$$$___getOuter1(df));
 				return;
 			}
 		}
 		CharWriter cw = new CharWriter(getSize(bean));
 		writer(cw, bean, df);
-		ib.$$$___setOuter(cw);
-		setIBean(bean, df, ib);
+		ib.$$$___setOuter1(df, cw);
 		writer.append(cw);
 	}
 	
-	private Map<Object, IBean> getCache(Object bean, DateFormat df) {
-		Reference<Map<Object, IBean>> ref = caches.get(df);
-		if (ref == null) {
-			ref = new SoftReference<Map<Object, IBean>>(new HashMap<Object, IBean>());
-			caches.put(df, ref);
-		}
-		Map<Object, IBean> map = ref.get();
+	private Map<Object, IStrongBean> getCache(Object bean, DateFormat df) {
+		Map<Object, IStrongBean> map = caches.get();
 		if (map == null) {
-			map = new HashMap<Object, IBean>();
-			ref = new SoftReference<Map<Object, IBean>>(map);
-			caches.put(df, ref);
+			map = new HashMap<Object, IStrongBean>();
+			caches = new SoftReference<Map<Object, IStrongBean>>(map);
 		}
 		return map;
 	}
 	
 	/** 取得 bean的IBean对象 */
-	protected IBean getIBean(Object bean, DateFormat df) {
-		if (bean instanceof IBean) {
-			return (IBean) bean;
+	protected IStrongBean getIBean(Object bean, DateFormat df) {
+		if (bean instanceof IStrongBean) {
+			return (IStrongBean) bean;
 		}
-		IBean ib = null;
-		Map<Object, IBean> map = getCache(bean, df);
+		IStrongBean ib = null;
+		Map<Object, IStrongBean> map = getCache(bean, df);
 		ib = map.get(bean);
 		if (ib == null) {
 			ib = StrongBeanFactory.get(bean.getClass(), bean);
+			map.put(bean, ib);
 		}
 		return ib;
-	}
-	
-	protected void setIBean(Object bean, DateFormat df, IBean ib) {
-		try {
-			if (!(bean instanceof IBean)) {
-				getCache(bean, df).put(bean, ib);
-			}
-		} catch (Exception e) {
-		}
 	}
 	
 	private void writer(CharWriter writer, Object bean, DateFormat df) {
@@ -228,10 +212,10 @@ public class Bean2Text extends Base2Text {
 		for (Field field : fields) {
 			try {
 				name = field.getName();
-				if (name == StrongBean.FIELD_STORE) {
+				if (name == MakeStrongBean.FIELD_STORE) {
 					continue;
 				}
-				if (name == StrongBean.SERIALVERSIONUID) {
+				if (name == MakeStrongBean.SERIALVERSIONUID) {
 					continue;
 				}
 				type = field.getType();

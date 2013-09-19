@@ -3,17 +3,17 @@ package test.org.qmik.datamap.creataStrongClass;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.StrongBeanFactory;
 import org.qmik.qmikjson.out.Bean2Text;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 
 public class TestMainStrongBean {
 	
 	public static void main(String[] args) {
 		System.out.println(User.class.getClassLoader());
 		
-		IBean userBean = StrongBeanFactory.get(User.class);
+		IStrongBean userBean = StrongBeanFactory.get(User.class);
 		//User userBean = new User();
 		User user = (User) userBean;
 		

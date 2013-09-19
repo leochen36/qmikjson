@@ -3,8 +3,9 @@ package org.qmik.qmikjson;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.token.asm.NewInstanceException;
-import org.qmik.qmikjson.token.asm.StrongBean;
+import org.qmik.qmikjson.token.asm.MakeStrongBean;
 import org.qmik.qmikjson.token.asm.StrongBeanClump;
 
 /**
@@ -15,15 +16,15 @@ import org.qmik.qmikjson.token.asm.StrongBeanClump;
 public class StrongBeanFactory {
 	
 	private final static StrongBeanClump			clump	= new StrongBeanClump();
-	private final static StrongBean					bean	= new StrongBean();
+	private final static MakeStrongBean					bean	= new MakeStrongBean();
 	private final static HashMap<String, String>	names	= new HashMap<String, String>();
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Class<?> superClazz, Object target) {
-		if (target instanceof IBean) {
+		if (target instanceof IStrongBean) {
 			return (T) target;
 		}
-		IBean bean = get(superClazz);
+		IStrongBean bean = get(superClazz);
 		bean.$$$___setTarget(target);
 		return (T) bean;
 	}
@@ -32,12 +33,12 @@ public class StrongBeanFactory {
 	public static <T> T get(Class<?> superClazz) {
 		T value = null;
 		try {
-			if (IBean.class.isAssignableFrom(superClazz)) {
+			if (IStrongBean.class.isAssignableFrom(superClazz)) {
 				return (T) superClazz.newInstance();
 			}
 			String key = (String) names.get(superClazz.getName());
 			if (key == null) {
-				key = superClazz.getName() + StrongBean.suffix;
+				key = superClazz.getName() + MakeStrongBean.suffix;
 				names.put(superClazz.getName(), key);
 			}
 			Class<?> strongClass = null;
@@ -47,9 +48,9 @@ public class StrongBeanFactory {
 			} else {
 				synchronized (clump) {
 					if (clump.get(key) == null) {
-						strongClass = bean.makeClass(superClazz, IBean.class);
+						strongClass = bean.makeClass(superClazz, IStrongBean.class);
 						value = (T) strongClass.newInstance();
-						IBean bean = (IBean) value;
+						IStrongBean bean = (IStrongBean) value;
 						Field[] fields = superClazz.getDeclaredFields();
 						for (int i = 0; i < fields.length; i++) {
 							bean.$$$___keys().add(fields[i].getName());

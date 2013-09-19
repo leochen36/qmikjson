@@ -1,7 +1,7 @@
 package test.org.qmik.datamap.creataStrongClass;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 
 import test.org.qmik.qmikjson.test.bean.CoreBeanUnit;
 

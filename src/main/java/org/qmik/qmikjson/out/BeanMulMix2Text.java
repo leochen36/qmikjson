@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.qmik.datamap.FIFO;
-import org.qmik.qmikjson.IBean;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.util.MixUtil;
 
 /**
@@ -17,9 +17,9 @@ import org.qmik.qmikjson.util.MixUtil;
  */
 class BeanMulMix2Text extends Base2Text {
 	/** 缓存 */
-	private static Map<DateFormat, Reference<Map<Object, FIFO<Node>>>>	caches	= new HashMap<DateFormat, Reference<Map<Object, FIFO<Node>>>>();
+	private static Reference<Map<Object, FIFO<Node>>>	caches	= new SoftReference<Map<Object, FIFO<Node>>>(new HashMap<Object, FIFO<Node>>());
 	
-	private static BeanMulMix2Text													instance	= new BeanMulMix2Text();
+	private static BeanMulMix2Text							instance	= new BeanMulMix2Text();
 	
 	private BeanMulMix2Text() {
 	}
@@ -28,7 +28,7 @@ class BeanMulMix2Text extends Base2Text {
 		return instance;
 	}
 	
-	String toJSONString(IBean bean) {
+	String toJSONString(IStrongBean bean) {
 		return toJSONString(bean, null);
 	}
 	
@@ -37,21 +37,18 @@ class BeanMulMix2Text extends Base2Text {
 	 * @param bean
 	 * @return
 	 */
-	String toJSONString(IBean ib, DateFormat df) {
-		if (ib == null) {
-			return null;
-		}
+	String toJSONString(IStrongBean ib, DateFormat df) {
 		CharWriter writer = getWriter(ib, df);
 		return writer.toString();
 	}
 	
 	/** 取得输出流 */
-	private CharWriter getWriter(IBean ib, DateFormat df) {
+	private CharWriter getWriter(IStrongBean ib, DateFormat df) {
 		FIFO<Node> fifo;
 		CharWriter writer;
 		if (ib.$$$___compare()) {
-			if (ib.$$$___existOuter()) {
-				writer = ib.$$$___getOuter();
+			if (ib.$$$___existOuter2(df)) {
+				writer = ib.$$$___getOuter2(df);
 				fifo = getCache(ib, df).get(ib);
 				if (fifo != null) {
 					appendReferce(writer, fifo, ib, df);
@@ -61,15 +58,15 @@ class BeanMulMix2Text extends Base2Text {
 		}
 		writer = new CharWriter(getSize(ib));
 		fifo = writer(writer, ib, df);
-		ib.$$$___setOuter(writer);
-		writer = ib.$$$___getOuter();
+		ib.$$$___setOuter2(df, writer);
+		writer = ib.$$$___getOuter2(df);
 		setCache(fifo, ib, df);
 		appendReferce(writer, fifo, ib, df);
 		return writer;
 	}
 	
 	/** 添加引用对象的值 */
-	private void appendReferce(CharWriter writer, FIFO<Node> fifo, IBean bean, DateFormat df) {
+	private void appendReferce(CharWriter writer, FIFO<Node> fifo, IStrongBean bean, DateFormat df) {
 		fifo = fifo.clone();
 		int start = 0;
 		int end = 0;
@@ -86,36 +83,30 @@ class BeanMulMix2Text extends Base2Text {
 		}
 	}
 	
-	protected void appendWriter(CharWriter writer, IBean ib, DateFormat df) {
+	protected void appendWriter(CharWriter writer, IStrongBean ib, DateFormat df) {
 		CharWriter cw = getWriter(ib, df);
 		writer.append(cw);
 	}
 	
 	protected void appendWriter(CharWriter writer, Object bean, DateFormat df) {
-		appendWriter(writer, (IBean) bean, df);
+		appendWriter(writer, (IStrongBean) bean, df);
 	}
 	
-	private Map<Object, FIFO<Node>> getCache(IBean bean, DateFormat df) {
-		Reference<Map<Object, FIFO<Node>>> ref = caches.get(df);
-		if (ref == null) {
-			ref = new SoftReference<Map<Object, FIFO<Node>>>(new HashMap<Object, FIFO<Node>>());
-			caches.put(df, ref);
-		}
-		Map<Object, FIFO<Node>> map = ref.get();
+	private Map<Object, FIFO<Node>> getCache(IStrongBean bean, DateFormat df) {
+		Map<Object, FIFO<Node>> map = caches.get();
 		if (map == null) {
 			map = new HashMap<Object, FIFO<Node>>();
-			ref = new SoftReference<Map<Object, FIFO<Node>>>(map);
-			caches.put(df, ref);
+			caches = new SoftReference<Map<Object, FIFO<Node>>>(map);
 		}
 		return map;
 	}
 	
-	protected void setCache(FIFO<Node> fifo, IBean bean, DateFormat df) {
+	protected void setCache(FIFO<Node> fifo, IStrongBean bean, DateFormat df) {
 		getCache(bean, df).put(bean, fifo);
 	}
 	
 	//把内容输入writer中
-	private FIFO<Node> writer(CharWriter writer, IBean bean, DateFormat df) {
+	private FIFO<Node> writer(CharWriter writer, IStrongBean bean, DateFormat df) {
 		try {
 			FIFO<Node> fifo = new FIFO<Node>();
 			Object value;

@@ -1,5 +1,6 @@
 package pkg;
 
+import java.text.DateFormat;
 import java.util.HashMap;
 
 import org.qmik.qmikjson.out.Bean2Text;
@@ -58,15 +59,38 @@ public class UUU {
 	
 	public CharWriter compare(String a, String b) {
 		CharWriter cc = new CharWriter(cw);
-		return cc;
+		CharWriter cw = new CharWriter(cc);
+		return cw;
 	}
 	
-	private HashMap<String,Class>	map;
+	private HashMap	map	= null;
 	
-	public void set() {
-		map = new HashMap<String,Class>();
+	public CharWriter get(Object df) {
+		if (map == null) {
+			return null; 
+		}
+		CharWriter cc = (CharWriter) map.get(df);
+		if (cc == null) {
+			return null;
+		}
+		CharWriter cw = new CharWriter(cc);
+		return cw;
 	}
-	public void set(String v,Class clazz){
+	
+	public void add(Object df, CharWriter writer) {
+		if (map == null) {
+			map = new HashMap();
+		}
+		map.put(df, writer);
+	}
+	
+	public void set(String v, Class clazz) {
 		map.put(v, clazz);
+	}
+	public boolean exist(String v){
+		if(map==null){
+			return false;
+		}
+		return map.containsKey(v);
 	}
 }

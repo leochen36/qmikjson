@@ -2,8 +2,8 @@ package org.qmik.qmikjson.util;
 
 import java.lang.reflect.Method;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.StrongBeanFactory;
+import org.qmik.qmikjson.token.asm.IStrongBean;
 
 public class BeanUtil {
 	public final static Object[]		NULLS			= new Object[] {};
@@ -27,11 +27,11 @@ public class BeanUtil {
 	}
 	
 	public static <T> T toIBean(T value) {
-		if (value instanceof IBean) {
+		if (value instanceof IStrongBean) {
 			return value;
 		}
 		T newValue = StrongBeanFactory.get(value.getClass());
-		IBean nv = (IBean) newValue;
+		IStrongBean nv = (IStrongBean) newValue;
 		Method[] methods = value.getClass().getDeclaredMethods();
 		String name;
 		for (Method method : methods) {

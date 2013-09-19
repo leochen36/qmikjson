@@ -3,10 +3,11 @@ package test.org.qmik.datamap.creataStrongClass;
 import java.util.Date;
 import java.util.Map;
 
-import org.qmik.qmikjson.IBean;
 import org.qmik.qmikjson.JSON;
 import org.qmik.qmikjson.StrongBeanFactory;
 import org.qmik.qmikjson.out.Bean2Text;
+import org.qmik.qmikjson.token.asm.IStrongBean;
+
 import test.org.qmik.datamap.UseCase;
 
 public class MainBean {
@@ -21,7 +22,7 @@ public class MainBean {
 		
 		System.out.println(User.class.getClassLoader());
 		
-		IBean userBean = StrongBeanFactory.get(User.class);
+		IStrongBean userBean = StrongBeanFactory.get(User.class);
 		if (true)
 			return;
 		User user = (User) userBean;
@@ -67,7 +68,7 @@ public class MainBean {
 	}
 	
 	static void test() {
-		IBean bean = StrongBeanFactory.get(UseCase.class);
+		IStrongBean bean = StrongBeanFactory.get(UseCase.class);
 		bean.$$$___setValue("id", 3);
 		//System.out.println(bean.$__getValue("id"));
 		UseCase user = (UseCase) bean;
