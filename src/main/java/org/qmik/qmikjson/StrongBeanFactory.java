@@ -16,7 +16,7 @@ import org.qmik.qmikjson.token.asm.StrongBeanClump;
 public class StrongBeanFactory {
 	
 	private final static StrongBeanClump			clump	= new StrongBeanClump();
-	private final static MakeStrongBean					bean	= new MakeStrongBean();
+	private final static MakeStrongBean				bean	= new MakeStrongBean();
 	private final static HashMap<String, String>	names	= new HashMap<String, String>();
 	
 	@SuppressWarnings("unchecked")
@@ -52,9 +52,11 @@ public class StrongBeanFactory {
 						value = (T) strongClass.newInstance();
 						IStrongBean bean = (IStrongBean) value;
 						Field[] fields = superClazz.getDeclaredFields();
+						String name = null;
 						for (int i = 0; i < fields.length; i++) {
-							bean.$$$___keys().add(fields[i].getName());
-							bean.$$$___fieldTypes().put(fields[i].getName(), fields[i].getType());
+							name = fields[i].getName();
+							//bean.$$$___keys().add(name);
+							bean.$$$___fieldTypes().put(name, fields[i].getType());
 						}
 						clump.add(key, strongClass);
 					}

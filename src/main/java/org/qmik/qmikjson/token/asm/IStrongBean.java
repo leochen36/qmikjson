@@ -38,18 +38,18 @@ public interface IStrongBean extends IBean {
 	
 	/** 取得输出 */
 	
-	public CharWriter $$$___getOuter1(Object key);
+	public CharWriter $$$___getOuter(Object key);
 	
 	public CharWriter $$$___getOuter2(Object key);
 	
 	/** 存在输出流 */
 	
-	public boolean $$$___existOuter1(Object key);
+	public boolean $$$___existOuter(Object key);
 	
 	public boolean $$$___existOuter2(Object key);
 	
 	/** 设置输出 */
-	public void $$$___setOuter1(Object key, CharWriter outer);
+	public void $$$___setOuter(Object key, CharWriter outer);
 	
 	public void $$$___setOuter2(Object key, CharWriter outer);
 	

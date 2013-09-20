@@ -28,7 +28,7 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 	public final static String		FIELD_CHASH				= "$$$___chash";
 	public final static String		FIELD_MUL				= "$$$___mul";
 	public final static String		FIELD_FIELDTYPES		= "$$$___fieldTypes";
-	public final static String		FIELD_OUTER1			= "$$$___outer1";
+	public final static String		FIELD_OUTER1			= "$$$___outer";
 	public final static String		FIELD_OUTER2			= "$$$___outer2";
 	
 	//方法
@@ -40,16 +40,16 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 	public final static String		METHOD_COMPARE			= "$$$___compare";
 	public final static String		METHOD_ISMULMIX		= "$$$___isMulMix";
 	public final static String		METHOD_FIELDTYPES		= "$$$___fieldTypes";
-	public final static String		METHOD_GETOUTER1		= "$$$___getOuter1";
+	public final static String		METHOD_GETOUTER1		= "$$$___getOuter";
 	public final static String		METHOD_GETOUTER2		= "$$$___getOuter2";
-	public final static String		METHOD_SETOUTER1		= "$$$___setOuter1";
+	public final static String		METHOD_SETOUTER1		= "$$$___setOuter";
 	public final static String		METHOD_SETOUTER2		= "$$$___setOuter2";
-	public final static String		METHOD_EXISTOUTER1	= "$$$___existOuter1";
+	public final static String		METHOD_EXISTOUTER1	= "$$$___existOuter";
 	public final static String		METHOD_EXISTOUTER2	= "$$$___existOuter2";
 	//
 	public final static String		SERIALVERSIONUID		= "serialVersionUID";
 	public final static String		suffix					= "$StrongBean";
-	public final static Class<?>	STORE						= ArrayList.class;
+	public final static Class<?>	TYPE_STORE				= ArrayList.class;
 	
 	//
 	public final static String		DESC_OBJECT				= JavaType.getDesc(Object.class);
@@ -93,7 +93,7 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 				cw.visitField(ACC_PUBLIC, field.getName(), JavaType.getDesc(field.getType()), null, null).visitEnd();
 			}
 			//创建存储key的字段 list
-			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, FIELD_STORE, JavaType.getDesc(STORE), null, null).visitEnd();
+			cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, FIELD_STORE, JavaType.getDesc(TYPE_STORE), null, null).visitEnd();
 			
 			//创建存储父节点字段
 			cw.visitField(ACC_PUBLIC, FIELD_TARGET, JavaType.getDesc(superClazz), null, null).visitEnd();
@@ -121,25 +121,14 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 				}
 			}
 			
-			/*for (Class<?> clazz : superInterfaces) {
-				methods = clazz.getDeclaredMethods();
-				if (clazz == IBean.class) {
-					for (Method method : methods) {
-						if (method.getName().equals("$$$___setValue")) {
-							makeIBeanSetMethod(method, cw, method.getName(), subInternalName, fields, superClazz);
-						} else if (method.getName().equals("$$$___getValue")) {
-							makeIBeanGetMethod(method, cw, method.getName(), subInternalName, fields, superClazz);
-						}
-					}
-				}
-			}*/
+			//创建 static{}
+			makeStaticStruct(cw, subInternalName, fields);
 			makeIBeanSetMethod(cw, subInternalName, fields, superClazz);
 			makeIBeanGetMethod(cw, subInternalName, fields, superClazz);
 			
 			//创建toString方法
 			makeToStringMethod(cw);
-			//创建 static{}
-			makeStaticStruct(cw, subInternalName);
+			
 			//创建keys
 			makeKeysMethod(cw, fields, subInternalName);
 			
@@ -152,10 +141,10 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 			
 			makeIBeanFieldTypesMethod(cw, subInternalName);
 			
-			makeIBeanGetOuter1Method(cw, subInternalName, METHOD_GETOUTER1, FIELD_OUTER1);
-			makeIBeanGetOuter1Method(cw, subInternalName, METHOD_GETOUTER2, FIELD_OUTER2);
-			makeIBeanSetOuter1Method(cw, subInternalName, METHOD_SETOUTER1, FIELD_OUTER1);
-			makeIBeanSetOuter1Method(cw, subInternalName, METHOD_SETOUTER2, FIELD_OUTER2);
+			makeIBeanGetOuterMethod(cw, subInternalName, METHOD_GETOUTER1, FIELD_OUTER1);
+			makeIBeanGetOuterMethod(cw, subInternalName, METHOD_GETOUTER2, FIELD_OUTER2);
+			makeIBeanSetOuterMethod(cw, subInternalName, METHOD_SETOUTER1, FIELD_OUTER1);
+			makeIBeanSetOuterMethod(cw, subInternalName, METHOD_SETOUTER2, FIELD_OUTER2);
 			
 			makeIBeanExistOuter1Method(cw, subInternalName, METHOD_EXISTOUTER1, FIELD_OUTER1);
 			makeIBeanExistOuter1Method(cw, subInternalName, METHOD_EXISTOUTER2, FIELD_OUTER2);
@@ -174,14 +163,15 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 	 * @param cw
 	 * @param superClass
 	 */
-	private static void makeStaticStruct(ClassWriter cw, String subInternalName) {
-		String newClass = Type.getInternalName(STORE);
+	private static void makeStaticStruct(ClassWriter cw, String subInternalName, Field[] fields) {
+		String internalStore = getInternalName(TYPE_STORE);
+		String descStore = JavaType.getDesc(TYPE_STORE);
 		//创建无参构造函数
 		MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-		mv.visitTypeInsn(NEW, newClass);
+		mv.visitTypeInsn(NEW, internalStore);
 		mv.visitInsn(DUP);
-		mv.visitMethodInsn(INVOKESPECIAL, newClass, "<init>", "()V");
-		mv.visitFieldInsn(PUTSTATIC, subInternalName, FIELD_STORE, JavaType.getDesc(STORE));
+		mv.visitMethodInsn(INVOKESPECIAL, internalStore, "<init>", "()V");
+		mv.visitFieldInsn(PUTSTATIC, subInternalName, FIELD_STORE, descStore);
 		
 		//
 		mv.visitTypeInsn(NEW, INTERNAL_MAP);
@@ -189,6 +179,15 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		mv.visitMethodInsn(INVOKESPECIAL, INTERNAL_MAP, "<init>", "()V");
 		mv.visitFieldInsn(PUTSTATIC, subInternalName, FIELD_FIELDTYPES, DESC_MAP);
 		
+		//
+		String name;
+		for (Field field : fields) {
+			name = field.getName();
+			mv.visitFieldInsn(GETSTATIC, subInternalName, FIELD_STORE, descStore);
+			mv.visitLdcInsn(name);
+			mv.visitMethodInsn(INVOKEVIRTUAL, internalStore, "add", "(" + DESC_OBJECT + ")Z");
+			mv.visitInsn(POP);
+		}
 		//
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
@@ -323,10 +322,13 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 			desc = JavaType.getDesc(field.getType());
 			
 			//equals
-			mv.visitLdcInsn(name);
+			/*mv.visitLdcInsn(name);
 			mv.visitVarInsn(ALOAD, 1);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z");
-			mv.visitJumpInsn(IFEQ, label);
+			mv.visitJumpInsn(IFEQ, label);*/
+			mv.visitLdcInsn(name);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitJumpInsn(IF_ACMPNE, label);
 			
 			//get
 			mv.visitVarInsn(ALOAD, 0);
@@ -529,7 +531,7 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, FIELD_STORE, "()Ljava/util/List;", null, null);
 		mv.visitCode();
-		mv.visitFieldInsn(GETSTATIC, subInternalName, FIELD_STORE, JavaType.getDesc(STORE));
+		mv.visitFieldInsn(GETSTATIC, subInternalName, FIELD_STORE, JavaType.getDesc(TYPE_STORE));
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
@@ -576,7 +578,7 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		mv.visitEnd();
 	}
 	
-	private static void makeIBeanSetOuter1Method(ClassWriter cw, String internalName, String methodName, String fieldName) {
+	private static void makeIBeanSetOuterMethod(ClassWriter cw, String internalName, String methodName, String fieldName) {
 		String descCW = JavaType.getDesc(CharWriter.class);
 		String internalOuter = getInternalName(HashMap.class);
 		String descOuter = JavaType.getDesc(HashMap.class);
@@ -617,8 +619,6 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, METHOD_COMPARE, "()Z", null, null);
 		mv.visitCode();
 		String desc = JavaType.getDesc(owner);
-		
-		addIntField(mv, internalName, FIELD_MUL);
 		
 		//
 		Label label = new Label();
@@ -682,13 +682,15 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		mv.visitLabel(labelp);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		//
+		addIntField(mv, internalName, FIELD_MUL);
+		
 		mv.visitLdcInsn(true);
 		mv.visitInsn(IRETURN);
 		mv.visitMaxs(2, 1);
 		mv.visitEnd();
 	}
 	
-	private static void makeIBeanGetOuter1Method(ClassWriter cw, String internalName, String methodName, String fieldName) {
+	private static void makeIBeanGetOuterMethod(ClassWriter cw, String internalName, String methodName, String fieldName) {
 		String internalCW = getInternalName(CharWriter.class);
 		String descCW = JavaType.getDesc(CharWriter.class);
 		String internalOuter = getInternalName(HashMap.class);
@@ -723,12 +725,16 @@ public class MakeStrongBean extends ClassLoader implements Opcodes {
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
 		//
-		mv.visitTypeInsn(NEW, internalCW);
-		mv.visitInsn(DUP);
-		mv.visitVarInsn(ALOAD, 2);
-		mv.visitMethodInsn(INVOKESPECIAL, internalCW, "<init>", "(" + descCW + ")V");
-		mv.visitVarInsn(ASTORE, 3);
-		mv.visitVarInsn(ALOAD, 3);
+		if (methodName == METHOD_GETOUTER1) {
+			mv.visitVarInsn(ALOAD, 2);
+		} else {
+			mv.visitTypeInsn(NEW, internalCW);
+			mv.visitInsn(DUP);
+			mv.visitVarInsn(ALOAD, 2);
+			mv.visitMethodInsn(INVOKESPECIAL, internalCW, "<init>", "(" + descCW + ")V");
+			mv.visitVarInsn(ASTORE, 3);
+			mv.visitVarInsn(ALOAD, 3);
+		}
 		
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(3, 1);

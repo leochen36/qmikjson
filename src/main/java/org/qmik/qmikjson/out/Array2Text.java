@@ -29,7 +29,7 @@ public class Array2Text extends Base2Text {
 			if (gtOne) {
 				writer.append(',');
 			}
-			appendValue(writer, list, value, df);
+			appendValue(writer, list, null, value, df);
 			gtOne = true;
 		}
 		writer.append(']');

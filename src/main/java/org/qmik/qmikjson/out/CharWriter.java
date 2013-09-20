@@ -76,9 +76,12 @@ public final class CharWriter {
 		if (size + end - start >= buf.length) {
 			buf = extendedCapacity(buf, size + end - start);
 		}
-		for (int i = start; i < end; i++) {
+		/*for (int i = start; i < end; i++) {
 			buf[size++] = value.charAt(i);
-		}
+		}*/
+		int length = end - start;
+		System.arraycopy(value.toCharArray(), start, buf, size, length);
+		size += length;
 		return this;
 	}
 	
