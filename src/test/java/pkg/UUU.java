@@ -1,7 +1,9 @@
 package pkg;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.qmik.qmikjson.out.Bean2Text;
 import org.qmik.qmikjson.out.CharWriter;
@@ -92,5 +94,11 @@ public class UUU {
 			return false;
 		}
 		return map.containsKey(v);
+	}
+	
+	public static ArrayList<String> list=new ArrayList<String>();
+	
+	public void add(){
+		list.add("3");
 	}
 }

@@ -14,7 +14,7 @@ import test.org.qmik.datamap.creataStrongClass.User;
 
 public class CoreBeanUnit {
 	private static int	maxJson	= 30000;
-	private static int	dealSum	= 50000;
+	private static int	dealSum	= 100000;
 	private static int	arrays	= 30;
 	
 	public static User create() {
@@ -70,7 +70,7 @@ public class CoreBeanUnit {
 		accountInfo.setAccountId(11);
 		accountInfo.setId(111);
 		accountInfo.setInfo("asfdasf");
-		//account.setAccountInfo(accountInfo);
+		account.setAccountInfo(accountInfo);
 		user.setAccount(account);
 		user.setAccount1(account);
 		List<Account> array = new ArrayList<Account>();
@@ -108,8 +108,8 @@ public class CoreBeanUnit {
 		for (int i = 0; i < dealSum; i++) {
 			//user.getAccount().setId(i );
 			user.setId(i);
-			//JSON.toJSONString(user);
-			JSON.toJSONStringWithDateFormat(user, "yyyy-MM-dd hh:mm:ss");
+			JSON.toJSONString(user);
+			//JSON.toJSONStringWithDateFormat(user, "yyyy-MM-dd hh:mm:ss");
 			//System.out.println(JSON.toJSONString(user));
 		}
 		long lg = System.currentTimeMillis();
@@ -123,6 +123,7 @@ public class CoreBeanUnit {
 		for (int i = 0; i < dealSum; i++) {
 			user.setId(i);
 			com.alibaba.fastjson.JSON.toJSONString(user);
+			//com.alibaba.fastjson.JSON.toJSONStringWithDateFormat(user, "yyyy-MM-dd hh:mm:ss");
 			//System.out.println(com.alibaba.fastjson.JSON.toJSONString(user));
 		}
 		long lg = System.currentTimeMillis();

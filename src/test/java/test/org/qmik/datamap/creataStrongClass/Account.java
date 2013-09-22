@@ -15,7 +15,7 @@ public class Account implements Serializable, Cloneable {
 	}
 	
 	public void setAccountInfo(AccountInfo accountInfo) {
-		this.accountInfo = accountInfo;
+		//this.accountInfo = accountInfo;
 	}
 	
 	public int getId() {
