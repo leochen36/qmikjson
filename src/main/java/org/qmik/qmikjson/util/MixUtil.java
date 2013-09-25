@@ -9,7 +9,7 @@ public class MixUtil {
 		return toDate(value, null);
 	}
 	
-	private final static SimpleDateFormat	sdf	= new SimpleDateFormat("yyyyMMddhhmmss");
+	private final static DateFormat	sdf	= new SimpleDateFormat("yyyyMMddhhmmss");
 	
 	@SuppressWarnings("deprecation")
 	public static Date toDate(Object value, Date _default) {
