@@ -1,5 +1,6 @@
 package org.qmik.qmikjson.util;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -8,8 +9,9 @@ public class MixUtil {
 		return toDate(value, null);
 	}
 	
-	private final static SimpleDateFormat	sdf	= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	private final static SimpleDateFormat	sdf	= new SimpleDateFormat("yyyyMMddhhmmss");
 	
+	@SuppressWarnings("deprecation")
 	public static Date toDate(Object value, Date _default) {
 		try {
 			if (value == null) {
@@ -21,7 +23,22 @@ public class MixUtil {
 			if (value instanceof Long) {
 				return new Date((Long) value);
 			}
-			return sdf.parse(value.toString());
+			if (value instanceof String) {
+				String val = (String) value;
+				StringBuilder sb = new StringBuilder();
+				char[] cs = val.toCharArray();
+				for (char c : cs) {
+					if (c >= '0' && c <= '9') {
+						sb.append(c);
+					}
+				}
+				val = sb.toString();
+				if (val.length() == 14) {
+					return sdf.parse(val);
+				}
+				return new Date((String) value);
+			}
+			return _default;
 		} catch (Exception e) {
 			return _default;
 		}
@@ -142,14 +159,4 @@ public class MixUtil {
 		return (int) (System.currentTimeMillis() / 6000);
 	}
 	
-	public static void main(String[] args) {
-		long l1 = System.currentTimeMillis();
-		Object o = 3;
-		for (int i = 0; i < 100000000; i++) {
-			isPrimitive(o.getClass());
-		}
-		System.out.println(System.currentTimeMillis() - l1);
-		System.out.println(o.getClass().isPrimitive());
-		System.out.println(o.getClass());
-	}
 }

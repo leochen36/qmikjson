@@ -49,7 +49,7 @@ public abstract class Token {
 		if (node instanceof IStrongBean) {
 			IStrongBean ib = (IStrongBean) node;
 			Class<?> clazz = ib.$$$___fieldTypes().get(key);
-			if (clazz == Date.class) {
+			if (Date.class.isAssignableFrom(clazz)) {
 				value = MixUtil.toDate(value);
 			}
 			ib.$$$___setValue(key, value);
