@@ -19,8 +19,16 @@ json.toJSONString(bean,dateformate);
 json.toJSONString(map,dateformate);
 json.toJSONString(list,dateformate);
 
+<h3>一个普通java bean对象转换成json字符串</h3>
+例子:
 
-<h3>一个对java bean对象转换成json字符串性能200%以上的提升点的使用:</h3>
+User user=new User();
+user.setId(11);
+user.setName("aaa");
+json.toJSONString(bean);
+
+
+<h3>一个增强java bean对象转换成json字符串性能:</h3>
 例子:
 
 User user=StrongBeanFactory.get(User.class);
@@ -28,4 +36,4 @@ user.setId(11);
 user.setName("aaa");
 json.toJSONString(bean);
 
-<h2 style="font-size:18px;color:red;">这种的转换性能可以提升200%以上</h2>
+<h2 style="font-size:18px;color:red;">这种的转换性能更优些</h2>
