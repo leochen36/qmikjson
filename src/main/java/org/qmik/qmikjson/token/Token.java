@@ -7,8 +7,8 @@ import java.util.Map;
 import org.qmik.datamap.Array;
 import org.qmik.datamap.Data;
 import org.qmik.datamap.LIFO;
-import org.qmik.qmikjson.JSONException;
 import org.qmik.qmikjson.StrongBeanFactory;
+import org.qmik.qmikjson.error.JSONException;
 import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.util.MixUtil;
 

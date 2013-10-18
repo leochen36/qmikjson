@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.qmik.datamap.Data;
 import org.qmik.datamap.IData;
-import org.qmik.qmikjson.JSONException;
+import org.qmik.qmikjson.error.JSONException;
 
 /**
  * json解析,把json字符串解析成map或list对象<br/>

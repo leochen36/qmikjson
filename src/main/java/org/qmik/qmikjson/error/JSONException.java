@@ -1,4 +1,4 @@
-package org.qmik.qmikjson;
+package org.qmik.qmikjson.error;
 
 @SuppressWarnings("serial")
 public class JSONException extends RuntimeException {

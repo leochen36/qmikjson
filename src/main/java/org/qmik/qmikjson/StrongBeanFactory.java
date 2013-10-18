@@ -4,13 +4,16 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qmik.qmikjson.error.ClassNoPublicException;
 import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.token.asm.NewInstanceException;
 import org.qmik.qmikjson.token.asm.MakeStrongBean;
 import org.qmik.qmikjson.token.asm.StrongBeanClump;
+import org.qmik.qmikjson.util.MixUtil;
 
 /**
  * 增强bean类
@@ -72,6 +75,10 @@ public class StrongBeanFactory {
 			///如果类访问级别不是共公的,返回空
 			if (!Modifier.isPublic(superClazz.getModifiers())) {
 				throw new ClassNoPublicException("class access is not public!");
+			}
+			//非法的类型
+			if (MixUtil.isUnitType(superClazz) || Collection.class.isAssignableFrom(superClazz) || Map.class.isAssignableFrom(superClazz)) {
+				throw new IllegalAccessError("superClazz type is Illegal");
 			}
 			if (IStrongBean.class.isAssignableFrom(superClazz)) {
 				return (T) superClazz.newInstance();

@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.qmik.qmikjson.error.JSONParse;
 import org.qmik.qmikjson.out.Object2Text;
 import org.qmik.qmikjson.util.MixUtil;
 
@@ -13,7 +15,7 @@ public class JSON {
 	private final static JSONParse			parse	= new JSONParse();
 	
 	/** 创建增强对象 */
-	public static <T> T makeStrong(Class<T> clazz) {
+	public static <T> T newInstance(Class<T> clazz) {
 		return StrongBeanFactory.get(clazz);
 	}
 	

@@ -1,4 +1,4 @@
-package org.qmik.qmikjson;
+package org.qmik.qmikjson.error;
 
 import java.util.Collection;
 import java.util.List;

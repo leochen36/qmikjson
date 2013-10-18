@@ -1,4 +1,4 @@
-package org.qmik.qmikjson;
+package org.qmik.qmikjson.error;
 
 public class ClassNoPublicException extends RuntimeException {
 	
