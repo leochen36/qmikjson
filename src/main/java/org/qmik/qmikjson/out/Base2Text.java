@@ -36,7 +36,6 @@ public abstract class Base2Text {
 		return baseNumber << displacement;
 	}
 	
-	//Map<Object, char[]>													map		= new HashMap<Object, char[]>(4096);
 	private Map<DateFormat, Reference<Map<Object, char[]>>>	dfcaches	= new HashMap<DateFormat, Reference<Map<Object, char[]>>>(32);
 	
 	/**
@@ -74,12 +73,13 @@ public abstract class Base2Text {
 	 * @param df
 	 */
 	protected void appendValue(CharWriter writer, Object parent, String name, Object value, DateFormat df) {
-		if (parent == value) {
+		if (parent == value || value == null) {
 			return;
 		}
 		if (name != null) {
 			writer.append('"').append(name).append('"').append(':');
 		}
+		//System.out.println(value + "---" + name + "---" + (value instanceof Number));
 		if ((value instanceof String)) {
 			writer.append('"').append(value.toString()).append('"');
 		} else if (MixUtil.isPrimitive(value.getClass())) {

@@ -4,7 +4,13 @@ import java.text.DateFormat;
 import java.util.Collection;
 
 public class Array2Text extends Base2Text {
-	private static Array2Text	instance	= new Array2Text();
+	private static Array2Text			instance	= new Array2Text();
+	//线程变量
+	private ThreadLocal<CharWriter>	l_writer	= new ThreadLocal<CharWriter>() {
+																protected CharWriter initialValue() {
+																	return new CharWriter(10240);
+																};
+															};
 	
 	private Array2Text() {
 	}
@@ -14,7 +20,9 @@ public class Array2Text extends Base2Text {
 	}
 	
 	public String toJSONString(Collection<Object> list, DateFormat df) {
-		CharWriter writer = new CharWriter(getSize(list));
+		//CharWriter writer = new CharWriter(getSize(list));
+		CharWriter writer = l_writer.get();
+		writer.clear();
 		writer(writer, list, df);
 		return writer.toString();
 	}

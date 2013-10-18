@@ -10,7 +10,13 @@ import java.util.Map;
  *
  */
 public class Data2Text extends Base2Text {
-	private static Data2Text	instance	= new Data2Text();
+	//线程变量
+	private ThreadLocal<CharWriter>	l_writer	= new ThreadLocal<CharWriter>() {
+																protected CharWriter initialValue() {
+																	return new CharWriter(2048);
+																};
+															};
+	private static Data2Text			instance	= new Data2Text();
 	
 	private Data2Text() {
 	}
@@ -21,7 +27,9 @@ public class Data2Text extends Base2Text {
 	
 	@SuppressWarnings({ "rawtypes" })
 	public String toJSONString(Map map, DateFormat df) {
-		CharWriter writer = new CharWriter(getSize(map));
+		//CharWriter writer = new CharWriter(getSize(map));
+		CharWriter writer = l_writer.get();
+		writer.clear();
 		writer(writer, map, df);
 		return writer.toString();
 	}

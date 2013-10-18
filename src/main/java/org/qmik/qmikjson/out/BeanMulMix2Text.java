@@ -47,8 +47,8 @@ class BeanMulMix2Text extends Base2Text {
 		FIFO<Node> fifo;
 		CharWriter writer;
 		if (ib.$$$___compare()) {
-			if (ib.$$$___existOuter2(df)) {
-				writer = ib.$$$___getOuter2(df);
+			if (ib.$$$___existOuterMulMix(df)) {
+				writer = ib.$$$___getOuterMulMix(df);
 				fifo = getCache(ib, df).get(ib);
 				if (fifo != null) {
 					appendReferce(writer, fifo, ib, df);
@@ -58,8 +58,8 @@ class BeanMulMix2Text extends Base2Text {
 		}
 		writer = new CharWriter(getSize(ib));
 		fifo = writer(writer, ib, df);
-		ib.$$$___setOuter2(df, writer);
-		writer = ib.$$$___getOuter2(df);
+		ib.$$$___setOuterMulMix(df, writer);
+		writer = ib.$$$___getOuterMulMix(df);
 		setCache(fifo, ib, df);
 		appendReferce(writer, fifo, ib, df);
 		return writer;

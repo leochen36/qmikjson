@@ -143,7 +143,7 @@ public class MixUtil {
 	
 	public static boolean isPrimitive(Class<?> type) {
 		return type.isPrimitive() || type == Integer.class || type == Boolean.class || type == Long.class || type == Double.class || type == Character.class
-				|| type == Byte.class || type == Float.class;
+				|| type == Byte.class || type == Float.class || Number.class.isAssignableFrom(type);
 	}
 	
 	/** 是否是单元类型,像基本类型,时间类型,字符串类型都认为是 */

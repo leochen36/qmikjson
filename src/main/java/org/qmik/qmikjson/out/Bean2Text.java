@@ -1,11 +1,9 @@
 package org.qmik.qmikjson.out;
 
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
+import java.lang.reflect.Modifier;
 import java.text.DateFormat;
-import java.util.HashMap;
-import java.util.Map;
 import org.qmik.qmikjson.StrongBeanFactory;
+import org.qmik.qmikjson.token.asm.FieldBean;
 import org.qmik.qmikjson.token.asm.IStrongBean;
 
 /**
@@ -14,10 +12,14 @@ import org.qmik.qmikjson.token.asm.IStrongBean;
  *
  */
 public class Bean2Text extends Base2Text {
-	/** 缓存 */
-	private static Reference<Map<Object, IStrongBean>>	caches	= new SoftReference<Map<Object, IStrongBean>>(new HashMap<Object, IStrongBean>());
+	//线程变量
+	private ThreadLocal<CharWriter>	l_writer	= new ThreadLocal<CharWriter>() {
+																protected CharWriter initialValue() {
+																	return new CharWriter(2048);
+																};
+															};
 	//单例
-	private static Bean2Text									instance	= new Bean2Text();
+	private static Bean2Text			instance	= new Bean2Text();
 	
 	private Bean2Text() {
 	}
@@ -50,7 +52,9 @@ public class Bean2Text extends Base2Text {
 				return ib.$$$___getOuter(df).toString();
 			}
 		}
-		CharWriter writer = new CharWriter(getSize(bean));
+		//CharWriter writer = new CharWriter(getSize(bean));
+		CharWriter writer = l_writer.get();
+		writer.clear();
 		writer(writer, ib, df);
 		ib.$$$___setOuter(df, writer);
 		return ib.$$$___getOuter(df).toString();
@@ -78,28 +82,17 @@ public class Bean2Text extends Base2Text {
 		writer.append(cw);
 	}
 	
-	private Map<Object, IStrongBean> getCache(Object bean, DateFormat df) {
-		Map<Object, IStrongBean> map = caches.get();
-		if (map == null) {
-			map = new HashMap<Object, IStrongBean>();
-			caches = new SoftReference<Map<Object, IStrongBean>>(map);
-		}
-		return map;
-	}
-	
 	/** 取得 bean的IBean对象 */
 	protected IStrongBean getIBean(Object bean, DateFormat df) {
 		if (bean instanceof IStrongBean) {
 			return (IStrongBean) bean;
 		}
-		IStrongBean ib = null;
-		Map<Object, IStrongBean> map = getCache(bean, df);
-		ib = map.get(bean);
-		if (ib == null) {
-			ib = StrongBeanFactory.get(bean.getClass(), bean);
-			map.put(bean, ib);
+		Class<?> clazz = bean.getClass();
+		if (!Modifier.isPublic(clazz.getModifiers())) {
+			return FieldBean.getInstance(bean);
+			//return FieldBean.class;
 		}
-		return ib;
+		return StrongBeanFactory.get(clazz, bean);
 	}
 	
 	private void writer(CharWriter writer, IStrongBean bean, DateFormat df) {
