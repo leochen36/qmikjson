@@ -2,6 +2,7 @@ qmikjson
 ========
 
 <h2>性能出众,高效的json解析引擎,是目前最高的解析引擎之一,比之fastjson有25%-200%左右的性能提升</h2>
+<h2>它的更加适用于小数据对象的转换,在大数据对象上的转换,性能并不出色(建议数据在k级别,在M级别的数据量,就算是偏大,或大对象了)</h2>
 
 <h3 style="font-size:18px;">使用方式:</h3>
 <h4>//全路径: org.qmik.qmikjson.JSON</p>
@@ -31,9 +32,9 @@ json.toJSONString(bean);
 <h3>一个增强java bean对象转换成json字符串性能:</h3>
 例子:
 
-User user=StrongBeanFactory.get(User.class);
+User user=JSON.newInstance(User.class);
 user.setId(11);
 user.setName("aaa");
 json.toJSONString(bean);
 
-<h2 style="font-size:18px;color:red;">这种的转换性能更优些</h2>
+<h2 style="font-size:18px;color:red;">这种的转换性能更优,极端情况下,会有多倍的性能提升</h2>
