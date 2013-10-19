@@ -16,9 +16,9 @@ json.toJSONString(map);
 json.toJSONString(list);
 
 <h3>//对象转换成json字符串,时间格式指定</h3>
-json.toJSONString(bean,dateformate);
-json.toJSONString(map,dateformate);
-json.toJSONString(list,dateformate);
+json.toJSONStringWithDateFormat(bean,dateformate);
+json.toJSONStringWithDateFormat(map,dateformate);
+json.toJSONStringWithDateFormat(list,dateformate);
 
 <h3>一个普通java bean对象转换成json字符串</h3>
 例子:
