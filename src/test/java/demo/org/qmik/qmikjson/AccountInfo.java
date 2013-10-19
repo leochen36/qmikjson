@@ -1,4 +1,4 @@
-package test.org.qmik.datamap.creataStrongClass;
+package demo.org.qmik.qmikjson;
 
 public class AccountInfo {
 	

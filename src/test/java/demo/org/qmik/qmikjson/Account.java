@@ -1,10 +1,10 @@
-package test.org.qmik.datamap.creataStrongClass;
+package demo.org.qmik.qmikjson;
 
 import java.io.Serializable;
 
 import org.qmik.qmikjson.StrongBeanFactory;
 
-public class Account implements Serializable, Cloneable {
+public class Account extends PUser implements Serializable, Cloneable {
 	private int				id;
 	private AccountInfo	accountInfo;
 	private String			userId;
