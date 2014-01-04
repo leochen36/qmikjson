@@ -1,11 +1,8 @@
 package org.qmik.qmikjson.out;
 
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import org.qmik.qmikjson.token.asm.IStrongBean;
 import org.qmik.qmikjson.util.MixUtil;
@@ -36,34 +33,6 @@ public abstract class Base2Text {
 		return baseNumber << displacement;
 	}
 	
-	private Map<DateFormat, Reference<Map<Object, char[]>>>	dfcaches	= new HashMap<DateFormat, Reference<Map<Object, char[]>>>(32);
-	
-	/**
-	 * 取时间缓存,时间转换是一种比较消耗资源的操作
-	 * @param value
-	 * @param df
-	 * @return
-	 */
-	private char[] getCacheDate(Date value, DateFormat df) {
-		Reference<Map<Object, char[]>> ref = dfcaches.get(df);
-		if (ref == null) {
-			ref = new SoftReference<Map<Object, char[]>>(new HashMap<Object, char[]>(2048));
-			dfcaches.put(df, ref);
-		}
-		Map<Object, char[]> map = ref.get();
-		char[] cs = map.get(value);
-		if (cs == null) {
-			if (df == null) {
-				cs = (value.getTime() + "").toCharArray();
-			} else {
-				cs = df.format(value).toCharArray();
-			}
-			
-			map.put(value, cs);
-		}
-		return cs;
-	}
-	
 	/** 
 	 * 把值添加到writer里
 	 * @param writer
@@ -79,13 +48,17 @@ public abstract class Base2Text {
 		if (name != null) {
 			writer.append('"').append(name).append('"').append(':');
 		}
-		//System.out.println(value + "---" + name + "---" + (value instanceof Number));
 		if ((value instanceof String)) {
 			writer.append('"').append(value.toString()).append('"');
 		} else if (MixUtil.isPrimitive(value.getClass())) {
 			writer.append(value.toString());
 		} else if (value instanceof Date) {
-			char[] cs = getCacheDate((Date) value, df);
+			char[] cs = null;
+			if (df == null) {
+				cs = (((Date) value).getTime() + "").toCharArray();
+			} else {
+				cs = df.format((Date) value).toCharArray();
+			}
 			if (df == null) {
 				writer.append(cs);
 			} else {
